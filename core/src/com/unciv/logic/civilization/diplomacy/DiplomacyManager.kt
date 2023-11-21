@@ -35,6 +35,9 @@ enum class RelationshipLevel(val color: Color) {
     }
 }
 
+/**
+ * 枚举了外交标志
+ */
 enum class DiplomacyFlags {
     DeclinedLuxExchange,
     DeclinedPeace,
@@ -127,11 +130,13 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
     /** Contains various flags (declared war, promised to not settle, declined luxury trade) and the number of turns in which they will expire.
      *  The JSON serialize/deserialize REFUSES to deserialize hashmap keys as Enums, so I'm forced to use strings instead =(
      *  This is so sad Alexa play Despacito */
+    //记录外交标志以及该标志剩下的回合数
     internal var flagsCountdown = HashMap<String, Int>()
 
     /** For AI. Positive is good relations, negative is bad.
      * Baseline is 1 point for each turn of peace - so declaring a war upends 40 years of peace, and e.g. capturing a city can be another 30 or 40.
      * As for why it's String and not DiplomaticModifier see FlagsCountdown comment */
+    //记录外交关系积分
     var diplomaticModifiers = HashMap<String, Float>()
 
     /** For city-states. Influence is saved in the CITY STATE -> major civ Diplomacy, NOT in the major civ -> city state diplomacy.
@@ -172,6 +177,9 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         return 0
     }
 
+    /**
+     * 在选择其他城市时，要计算modifiersum，外交关系积分
+     */
     fun opinionOfOtherCiv(): Float {
         var modifierSum = diplomaticModifiers.values.sum()
         // Angry about attacked CS and destroyed CS do not stack
@@ -244,6 +252,9 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
     }
 
     /** Same as [relationshipLevel] but omits the distinction Neutral/Afraid, which can be _much_ cheaper */
+    /**
+     * 通过一系列的规则，忽略掉Afraid的这个状态，返回其他状态
+     */
     fun relationshipIgnoreAfraid(): RelationshipLevel {
         if (civInfo.isHuman() && otherCiv().isHuman())
             return RelationshipLevel.Neutral // People make their own choices.
@@ -305,10 +316,16 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         }
     }
 
+    /**
+     * 添加影响力
+     */
     fun addInfluence(amount: Float) {
         setInfluence(influence + amount)
     }
 
+    /**
+     * 设置影响力
+     */
     fun setInfluence(amount: Float) {
         influence = max(amount, MINIMUM_INFLUENCE)
         civInfo.cityStateFunctions.updateAllyCivForCityState()
@@ -435,28 +452,36 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
     }
 
     /** Should only be called from makePeace */
+    /**
+     *  达成和平
+     */
     private fun makePeaceOneSide() {
         diplomaticStatus = DiplomaticStatus.Peace
         val otherCiv = otherCiv()
         // Get out of others' territory
+        //自己单位退出其领地
         for (unit in civInfo.units.getCivUnits().filter { it.getTile().getOwner() == otherCiv }.toList())
             unit.movement.teleportToClosestMoveableTile()
 
         for (thirdCiv in civInfo.getKnownCivs()) {
             // Our ally city states make peace with us
+            //盟友也要一起讲和
             if (thirdCiv.getAllyCiv() == civInfo.civName && thirdCiv.isAtWarWith(otherCiv))
                 thirdCiv.getDiplomacyManager(otherCiv).makePeace()
             // Other City-States that are not our ally don't like the fact that we made peace with their enemy
+            //不是盟友，但我们和敌国求和，所以Influence减少。
             if (thirdCiv.getAllyCiv() != civInfo.civName && thirdCiv.isAtWarWith(otherCiv))
                 thirdCiv.getDiplomacyManager(civInfo).addInfluence(-10f)
         }
     }
 
-
+    /**
+     * 从这调用makePeaceOneSide()，去makePeace
+     */
     fun makePeace() {
         makePeaceOneSide()
         otherCivDiplomacy().makePeaceOneSide()
-
+        //通知已知其他文明，我们已经建交-signed a Peace Treaty!
         for (civ in getCommonKnownCivs()) {
             civ.addNotification(
                     "[${civInfo.civName}] and [$otherCivName] have signed a Peace Treaty!",
@@ -465,16 +490,33 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         }
     }
 
+    /**
+     * 是否包含flag标记
+     */
     fun hasFlag(flag: DiplomacyFlags) = flagsCountdown.containsKey(flag.name)
+
+    /**
+     * 设置标记结束回合数
+     */
     fun setFlag(flag: DiplomacyFlags, amount: Int) {
         flagsCountdown[flag.name] = amount
     }
 
+    /**
+     * 得到标记结束回合数
+     */
     fun getFlag(flag: DiplomacyFlags) = flagsCountdown[flag.name]!!
+
+    /**
+     * 移除该外交标志
+     */
     fun removeFlag(flag: DiplomacyFlags) {
         flagsCountdown.remove(flag.name)
     }
 
+    /**
+     * 添加diplomaticModifiers的值，若添加后刚好为0直接移除该键
+     */
     fun addModifier(modifier: DiplomaticModifiers, amount: Float) {
         val modifierString = modifier.name
         if (!hasModifier(modifier)) setModifier(modifier, 0f)
@@ -482,18 +524,28 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         if (diplomaticModifiers[modifierString] == 0f) diplomaticModifiers.remove(modifierString)
     }
 
+    /**
+     * 设置diplomaticModifiers的值
+     */
     fun setModifier(modifier: DiplomaticModifiers, amount: Float) {
         diplomaticModifiers[modifier.name] = amount
     }
 
+    /**
+     * 得到diplomaticModifiers对应键的值
+     */
     internal fun getModifier(modifier: DiplomaticModifiers): Float {
         if (!hasModifier(modifier)) return 0f
         return diplomaticModifiers[modifier.name]!!
     }
-
+    //移除
     internal fun removeModifier(modifier: DiplomaticModifiers) = diplomaticModifiers.remove(modifier.name)
+    //是否包含
     fun hasModifier(modifier: DiplomaticModifiers) = diplomaticModifiers.containsKey(modifier.name)
 
+    /**
+     * 声明友好，更新Modifier和flag
+     */
     fun signDeclarationOfFriendship() {
         setModifier(DiplomaticModifiers.DeclarationOfFriendship, 35f)
         otherCivDiplomacy().setModifier(DiplomaticModifiers.DeclarationOfFriendship, 35f)
@@ -516,7 +568,11 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
             UniqueTriggerActivation.triggerCivwideUnique(unique, otherCiv())
     }
 
+    /**
+     * 会遍历getCommonKnownCivs()，基于已建交的城邦与该城邦的关系，更新Modifier的值。
+     */
     internal fun setFriendshipBasedModifier() {
+        //首先移除Modifier中以下两个内容，因为已经与我建交
         removeModifier(DiplomaticModifiers.DeclaredFriendshipWithOurAllies)
         removeModifier(DiplomaticModifiers.DeclaredFriendshipWithOurEnemies)
         for (thirdCiv in getCommonKnownCivs()
@@ -538,6 +594,9 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         }
     }
 
+    /**
+     * 声明防御协议，更新Modifier和flag，与声明友好一样
+     */
     fun signDefensivePact(duration: Int) {
         //Note: These modifiers are additive to the friendship modifiers
         setModifier(DiplomaticModifiers.DefensivePact, 10f)
@@ -563,6 +622,9 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
             UniqueTriggerActivation.triggerCivwideUnique(unique, otherCiv())
     }
 
+    /**
+     * 会遍历getCommonKnownCivs()，基于已建交的城邦与该城邦的关系，更新Modifier的值。类似setFriendshipBasedModifier()。
+     */
     internal fun setDefensivePactBasedModifier() {
         removeModifier(DiplomaticModifiers.SignedDefensivePactWithOurAllies)
         removeModifier(DiplomaticModifiers.SignedDefensivePactWithOurEnemies)
@@ -585,7 +647,11 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         }
     }
 
-
+    /**
+     * 关于谴责，A谴责B，更新这俩的Modifier和flag。
+     * We, A, are denouncing B. What do other major civs (C,D, etc) think of this?
+     * 根据其他城邦与B的关系，其他城邦对应addModifier的内容不一样
+     */
     fun denounce() {
         setModifier(DiplomaticModifiers.Denunciation, -35f)
         otherCivDiplomacy().setModifier(DiplomaticModifiers.Denunciation, -35f)
@@ -612,6 +678,9 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         }
     }
 
+    /**
+     * 不要建造城市在我周围
+     */
     fun agreeNotToSettleNear() {
         otherCivDiplomacy().setFlag(DiplomacyFlags.AgreedToNotSettleNearUs, 100)
         addModifier(DiplomaticModifiers.UnacceptableDemands, -10f)
@@ -619,6 +688,9 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
             NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
     }
 
+    /**
+     * 拒绝了建造城市在我们周围的要求
+     */
     fun refuseDemandNotToSettleNear() {
         addModifier(DiplomaticModifiers.UnacceptableDemands, -20f)
         otherCivDiplomacy().setFlag(DiplomacyFlags.IgnoreThemSettlingNearUs, 100)
@@ -627,11 +699,17 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
             NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
     }
 
+    /**
+     * 支持被保护的城邦
+     */
     fun sideWithCityState() {
         otherCivDiplomacy().setModifier(DiplomaticModifiers.SidedWithProtectedMinor, -5f)
         otherCivDiplomacy().setFlag(DiplomacyFlags.RememberSidedWithProtectedMinor, 25)
     }
 
+    /**
+     * 变得wary，一直有效
+     */
     fun becomeWary() {
         if (hasFlag(DiplomacyFlags.WaryOf)) return // once is enough
         setFlag(DiplomacyFlags.WaryOf, -1) // Never expires
