@@ -74,8 +74,10 @@ class Civilization : IsPartOfGameInfoSerialization {
      * This instance carries cached data common for all Workers of this civ */
     fun getWorkerAutomation(): WorkerAutomation {
         val currentTurn = gameInfo.turns
-        if (workerAutomationCache == null || workerAutomationCache!!.cachedForTurn != currentTurn)
+//         if (workerAutomationCache!!.destroy()) units.removeUnit(BaseUnit().getMapUnit(this))
+        if (workerAutomationCache == null || workerAutomationCache!!.cachedForTurn != currentTurn) {
             workerAutomationCache = WorkerAutomation(this, currentTurn)
+        }
         return workerAutomationCache!!
     }
 

@@ -103,8 +103,8 @@ class WorkerAutomation(
     private val bfsCache = HashMap<Vector2, BFS>()
 
     //todo: UnitMovementAlgorithms.canReach still very expensive and could benefit from caching, it's not using BFS
-
-
+    //记录工人改进地块除修路的次数
+//     private var NumOfWokerUse = 0
     ///////////////////////////////////////// Helpers /////////////////////////////////////////
 
     companion object {
@@ -113,6 +113,10 @@ class WorkerAutomation(
     }
 
 
+//     fun destroy(): Boolean{
+//         if(civInfo.isHuman()) println("我没了～")
+//         return NumOfWokerUse>=3
+//     }
     ///////////////////////////////////////// Methods /////////////////////////////////////////
     /**
      * Automate one Worker - decide what to do and where, move, start or continue work.
@@ -124,6 +128,10 @@ class WorkerAutomation(
         if (getPriority(tileToWork) < 3) { // building roads is more important
             if (tryConnectingCities(unit)) return
         }
+//         else{
+//             NumOfWokerUse  += 1
+//             if(civInfo.isHuman())println(NumOfWokerUse)
+//         }
 
         if (tileToWork != currentTile) {
             debug("WorkerAutomation: %s -> head towards %s", unit.label(), tileToWork)

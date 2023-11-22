@@ -19,6 +19,9 @@ object DeclareWar {
      * When @indirectCityStateAttack is set to true, we thus don't reset the influence with this city state.
      * Should only ever be set to true for calls originating from within this function.
      */
+    /**
+     *声明战争，带来的种种影响，对城邦的影响力、对其他城邦或者文明的影响力或Modifiers状态
+     */
     internal fun declareWar(diplomacyManager: DiplomacyManager, indirectCityStateAttack: Boolean = false) {
         val civInfo = diplomacyManager.civInfo
         val otherCiv = diplomacyManager.otherCiv()
@@ -30,6 +33,7 @@ object DeclareWar {
             otherCiv.cityStateFunctions.cityStateAttacked(civInfo)
 
             // You attacked your own ally, you're a right bastard
+            //若攻击了自己的盟友，影响力扣双倍
             if (otherCiv.getAllyCiv() == civInfo.civName) {
                 otherCiv.cityStateFunctions.updateAllyCivForCityState()
                 otherCivDiplomacy.setInfluence(-120f)
@@ -68,6 +72,9 @@ object DeclareWar {
                 UniqueTriggerActivation.triggerCivwideUnique(unique, civInfo)
     }
 
+    /**
+     * 撕毁所有签订的条约，移除所有有关的flag与modifier，并会让所有已知文明知道我们友情的廉价
+     */
     private fun breakTreaties(diplomacyManager: DiplomacyManager) {
         val otherCiv = diplomacyManager.otherCiv()
         val otherCivDiplomacy = diplomacyManager.otherCivDiplomacy()
@@ -116,6 +123,9 @@ object DeclareWar {
 
 
     /** Everything that happens to both sides equally when war is declared by one side on the other */
+    /**
+     * 声明战争，会停止所有贸易，受攻击方会呼叫防御协定国和盟友，攻击方会呼叫盟友，并开放边界更新Modifier和flag
+     */
     private fun onWarDeclared(diplomacyManager:DiplomacyManager, isOffensiveWar: Boolean) {
         // Cancel all trades.
         for (trade in diplomacyManager.trades)
@@ -128,12 +138,14 @@ object DeclareWar {
         val civAtWarWith = diplomacyManager.otherCiv()
 
         // If we attacked, then we need to end all of our defensive pacts acording to Civ 5
+        //主动发起攻击的一方，销毁所有防御契约
         if (isOffensiveWar) {
             removeDefensivePacts(diplomacyManager)
         }
         diplomacyManager.diplomaticStatus = DiplomaticStatus.War
 
         if (diplomacyManager.civInfo.isMajorCiv()) {
+            //是被发起放&&不是城邦
             if (!isOffensiveWar && !civAtWarWith.isCityState()) callInDefensivePactAllies(diplomacyManager)
             callInCityStateAllies(diplomacyManager)
         }
@@ -146,8 +158,9 @@ object DeclareWar {
         diplomacyManager.updateHasOpenBorders()
 
         diplomacyManager.removeModifier(DiplomaticModifiers.YearsOfPeace)
-        diplomacyManager.setFlag(DiplomacyFlags.DeclinedPeace, 10)/// AI won't propose peace for 10 turns
-        diplomacyManager.setFlag(DiplomacyFlags.DeclaredWar, 10) // AI won't agree to trade for 10 turns
+        //把宣战后和解的最低回合数从10->1，声明战争也从10->1
+        diplomacyManager.setFlag(DiplomacyFlags.DeclinedPeace, 1)/// AI won't propose peace for 10 turns
+        diplomacyManager.setFlag(DiplomacyFlags.DeclaredWar, 1) // AI won't agree to trade for 10 turns
         diplomacyManager.removeFlag(DiplomacyFlags.BorderConflict)
     }
 
@@ -155,6 +168,9 @@ object DeclareWar {
      * Removes all defensive Pacts and trades. Notifies other civs.
      * Note: Does not remove the flags and modifiers of the otherCiv if there is a defensive pact.
      * This is so that we can apply more negative modifiers later.
+     */
+    /**
+     * 销毁了所有防御契约带来的附属，包括贸易等
      */
     private fun removeDefensivePacts(diplomacyManager: DiplomacyManager) {
         val civAtWarWith = diplomacyManager.otherCiv()
@@ -193,6 +209,9 @@ object DeclareWar {
      * Goes through each DiplomacyManager with a defensive pact that is not already in the war.
      * The civ that we are calling them in against should no longer have a defensive pact with us.
      */
+    /**
+     * 呼叫与自己签订防御协定的友军，发起战争方也会向他们宣战，如没遇见过，制造meet。
+     */
     private fun callInDefensivePactAllies(diplomacyManager: DiplomacyManager) {
         val civAtWarWith = diplomacyManager.otherCiv()
         for (ourDefensivePact in diplomacyManager.civInfo.diplomacy.values.filter { ourDipManager ->
@@ -210,6 +229,9 @@ object DeclareWar {
         }
     }
 
+    /**
+     * 呼叫自己的城邦盟友，它们会向发起战争者宣战。
+     */
     private fun callInCityStateAllies(diplomacyManager: DiplomacyManager) {
         val civAtWarWith = diplomacyManager.otherCiv()
         for (thirdCiv in diplomacyManager.civInfo.getKnownCivs()

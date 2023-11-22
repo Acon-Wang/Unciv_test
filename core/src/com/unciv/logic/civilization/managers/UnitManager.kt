@@ -89,7 +89,7 @@ class UnitManager(val civInfo:Civilization) {
                     UniqueTriggerActivation.triggerCivwideUnique(unique, civInfo, triggerNotificationText = triggerNotificationText)
             if (unit.getResourceRequirementsPerTurn().isNotEmpty())
                 civInfo.cache.updateCivResources()
-                
+
             for (unique in civInfo.getMatchingUniques(UniqueType.LandUnitsCrossTerrainAfterUnitGained)) {
                 if (unit.matchesFilter(unique.params[1])) {
                     civInfo.passThroughImpassableUnlocked = true    // Update the cached Boolean
@@ -137,10 +137,11 @@ class UnitManager(val civInfo:Civilization) {
         newList.remove(mapUnit)
         unitList = newList
         nextPotentiallyDueAt = 0
-
+        println("我删除了")
         civInfo.updateStatsForNextTurn() // unit upkeep
         if (mapUnit.getResourceRequirementsPerTurn().isNotEmpty())
             civInfo.cache.updateCivResources()
+
     }
 
     fun getIdleUnits() = getCivUnits().filter { it.isIdle() }
