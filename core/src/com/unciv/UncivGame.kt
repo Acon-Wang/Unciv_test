@@ -259,8 +259,8 @@ open class UncivGame(val isConsoleMode: Boolean = false) : Game(), PlatformSpeci
 
 
         if (gameInfo?.gameParameters?.isOnlineMultiplayer == true
-                && gameInfo?.gameParameters?.anyoneCanSpectate == false
-                && gameInfo!!.civilizations.none { it.playerId == settings.multiplayer.userId }) {
+            && gameInfo?.gameParameters?.anyoneCanSpectate == false
+            && gameInfo!!.civilizations.none { it.playerId == settings.multiplayer.userId }) {
             throw UncivShowableException("You are not allowed to spectate!")
         }
 
@@ -305,8 +305,8 @@ open class UncivGame(val isConsoleMode: Boolean = false) : Game(), PlatformSpeci
     /** The new game info may have different mods or rulesets, which may use different resources that need to be loaded. */
     private suspend fun initializeResources(prevGameInfo: GameInfo?, newGameInfo: GameInfo) {
         if (prevGameInfo == null
-                || prevGameInfo.gameParameters.baseRuleset != newGameInfo.gameParameters.baseRuleset
-                || prevGameInfo.gameParameters.mods != newGameInfo.gameParameters.mods) {
+            || prevGameInfo.gameParameters.baseRuleset != newGameInfo.gameParameters.baseRuleset
+            || prevGameInfo.gameParameters.mods != newGameInfo.gameParameters.mods) {
             withGLContext {
                 ImageGetter.setNewRuleset(newGameInfo.ruleset)
             }

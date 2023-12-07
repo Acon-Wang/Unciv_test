@@ -115,8 +115,8 @@ object CivilianUnitAutomation {
             // includes great people plus moddable units
             val improvementCanBePlacedEventually =
                 SpecificUnitAutomation.automateImprovementPlacer(unit)
-            if (!improvementCanBePlacedEventually)
-                UnitActions.invokeUnitAction(unit, UnitActionType.StartGoldenAge)
+//             if (!improvementCanBePlacedEventually)
+//                 UnitActions.invokeUnitAction(unit, UnitActionType.StartGoldenAge)
         }
 
         // TODO: The AI tends to have a lot of great generals. Maybe there should be a cutoff

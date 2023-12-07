@@ -97,7 +97,7 @@ class TileMap(initialCapacity: Int = 10) : IsPartOfGameInfoSerialization {
     val startingLocationsByNation = HashMap<String, HashSet<Tile>>()
 
     @Transient
-    /** Continent ID to Continent size */
+        /** Continent ID to Continent size */
     val continentSizes = HashMap<Int, Int>()
 
     //endregion
@@ -135,7 +135,7 @@ class TileMap(initialCapacity: Int = 10) : IsPartOfGameInfoSerialization {
      * Tip: you can always use the in-game map editor if you have any doubt
      * */
     constructor(radius: Int, ruleset: Ruleset, worldWrap: Boolean = false)
-            : this (HexMath.getNumberOfTilesInHexagon(radius)) {
+        : this (HexMath.getNumberOfTilesInHexagon(radius)) {
         startingLocations.clear()
         val firstAvailableLandTerrain = MapLandmassGenerator.getInitializationTerrain(ruleset, TerrainType.Land)
         for (vector in HexMath.getVectorsInDistance(Vector2.Zero, radius, worldWrap))
@@ -145,7 +145,7 @@ class TileMap(initialCapacity: Int = 10) : IsPartOfGameInfoSerialization {
 
     /** creates a rectangular map of given width and height (filled with grassland) */
     constructor(width: Int, height: Int, ruleset: Ruleset, worldWrap: Boolean = false)
-            : this(width * height) {
+        : this(width * height) {
         startingLocations.clear()
         val firstAvailableLandTerrain = MapLandmassGenerator.getInitializationTerrain(ruleset, TerrainType.Land)
 
@@ -197,7 +197,7 @@ class TileMap(initialCapacity: Int = 10) : IsPartOfGameInfoSerialization {
 
     /** @return tile at hex coordinates ([x],[y]) or null if they are outside the map. Does *not* respect world wrap, use [getIfTileExistsOrNull] for that. */
     private fun getOrNull (x: Int, y: Int): Tile? =
-            tileMatrix.getOrNull(x - leftX)?.getOrNull(y - bottomY)
+        tileMatrix.getOrNull(x - leftX)?.getOrNull(y - bottomY)
 
     //endregion
     //region Pure Functions
@@ -205,60 +205,60 @@ class TileMap(initialCapacity: Int = 10) : IsPartOfGameInfoSerialization {
     /** @return All tiles in a hexagon of radius [distance], including the tile at [origin] and all up to [distance] steps away.
      *  Respects map edges and world wrap. */
     fun getTilesInDistance(origin: Vector2, distance: Int): Sequence<Tile> =
-            getTilesInDistanceRange(origin, 0..distance)
+        getTilesInDistanceRange(origin, 0..distance)
 
     /** @return All tiles in a hexagonal ring around [origin] with the distances in [range]. Excludes the [origin] tile unless [range] starts at 0.
      *  Respects map edges and world wrap. */
     fun getTilesInDistanceRange(origin: Vector2, range: IntRange): Sequence<Tile> =
-            range.asSequence().flatMap { getTilesAtDistance(origin, it) }
+        range.asSequence().flatMap { getTilesAtDistance(origin, it) }
 
     /** @return All tiles in a hexagonal ring 1 tile wide around [origin] with the [distance]. Contains the [origin] if and only if [distance] is <= 0.
      *  Respects map edges and world wrap. */
     fun getTilesAtDistance(origin: Vector2, distance: Int): Sequence<Tile> =
-            if (distance <= 0) // silently take negatives.
-                sequenceOf(get(origin))
-            else
-                sequence {
-                    val centerX = origin.x.toInt()
-                    val centerY = origin.y.toInt()
+        if (distance <= 0) // silently take negatives.
+            sequenceOf(get(origin))
+        else
+            sequence {
+                val centerX = origin.x.toInt()
+                val centerY = origin.y.toInt()
 
-                    // Start from 6 O'clock point which means (-distance, -distance) away from the center point
-                    var currentX = centerX - distance
-                    var currentY = centerY - distance
+                // Start from 6 O'clock point which means (-distance, -distance) away from the center point
+                var currentX = centerX - distance
+                var currentY = centerY - distance
 
-                    for (i in 0 until distance) { // From 6 to 8
-                        yield(getIfTileExistsOrNull(currentX, currentY))
-                        // We want to get the tile on the other side of the clock,
-                        // so if we're at current = origin-delta we want to get to origin+delta.
-                        // The simplest way to do this is 2*origin - current = 2*origin- (origin - delta) = origin+delta
-                        yield(getIfTileExistsOrNull(2 * centerX - currentX, 2 * centerY - currentY))
-                        currentX += 1 // we're going upwards to the left, towards 8 o'clock
-                    }
-                    for (i in 0 until distance) { // 8 to 10
-                        yield(getIfTileExistsOrNull(currentX, currentY))
-                        yield(getIfTileExistsOrNull(2 * centerX - currentX, 2 * centerY - currentY))
-                        currentX += 1
-                        currentY += 1 // we're going up the left side of the hexagon so we're going "up" - +1,+1
-                    }
-                    for (i in 0 until distance) { // 10 to 12
-                        yield(getIfTileExistsOrNull(currentX, currentY))
-                        yield(getIfTileExistsOrNull(2 * centerX - currentX, 2 * centerY - currentY))
-                        currentY += 1 // we're going up the top left side of the hexagon so we're heading "up and to the right"
-                    }
-                }.filterNotNull()
+                for (i in 0 until distance) { // From 6 to 8
+                    yield(getIfTileExistsOrNull(currentX, currentY))
+                    // We want to get the tile on the other side of the clock,
+                    // so if we're at current = origin-delta we want to get to origin+delta.
+                    // The simplest way to do this is 2*origin - current = 2*origin- (origin - delta) = origin+delta
+                    yield(getIfTileExistsOrNull(2 * centerX - currentX, 2 * centerY - currentY))
+                    currentX += 1 // we're going upwards to the left, towards 8 o'clock
+                }
+                for (i in 0 until distance) { // 8 to 10
+                    yield(getIfTileExistsOrNull(currentX, currentY))
+                    yield(getIfTileExistsOrNull(2 * centerX - currentX, 2 * centerY - currentY))
+                    currentX += 1
+                    currentY += 1 // we're going up the left side of the hexagon so we're going "up" - +1,+1
+                }
+                for (i in 0 until distance) { // 10 to 12
+                    yield(getIfTileExistsOrNull(currentX, currentY))
+                    yield(getIfTileExistsOrNull(2 * centerX - currentX, 2 * centerY - currentY))
+                    currentY += 1 // we're going up the top left side of the hexagon so we're heading "up and to the right"
+                }
+            }.filterNotNull()
 
     /** @return all tiles within [rectangle], respecting world edges and wrap.
      *  The rectangle will be "straight" ie parallel with rectangular map edges. */
     fun getTilesInRectangle(rectangle: Rectangle) = sequence {
-            val x = rectangle.x.toInt()
-            val y = rectangle.y.toInt()
-            for (worldColumnNumber in x until x + rectangle.width.toInt()) {
-                for (worldRowNumber in y until y + rectangle.height.toInt()) {
-                    val hexCoords = HexMath.getTileCoordsFromColumnRow(worldColumnNumber, worldRowNumber)
-                    yield(getIfTileExistsOrNull(hexCoords.x.toInt(), hexCoords.y.toInt()))
-                }
+        val x = rectangle.x.toInt()
+        val y = rectangle.y.toInt()
+        for (worldColumnNumber in x until x + rectangle.width.toInt()) {
+            for (worldRowNumber in y until y + rectangle.height.toInt()) {
+                val hexCoords = HexMath.getTileCoordsFromColumnRow(worldColumnNumber, worldRowNumber)
+                yield(getIfTileExistsOrNull(hexCoords.x.toInt(), hexCoords.y.toInt()))
             }
-        }.filterNotNull()
+        }
+    }.filterNotNull()
 
     /** @return tile at hex coordinates ([x],[y]) or null if they are outside the map. Respects map edges and world wrap. */
     fun getIfTileExistsOrNull(x: Int, y: Int): Tile? {
@@ -528,14 +528,14 @@ class TileMap(initialCapacity: Int = 10) : IsPartOfGameInfoSerialization {
      * @return created [MapUnit] or null if no suitable location was found
      * */
     fun placeUnitNearTile(
-            position: Vector2,
-            baseUnit: BaseUnit,
-            civInfo: Civilization
+        position: Vector2,
+        baseUnit: BaseUnit,
+        civInfo: Civilization
     ): MapUnit? {
         val unit = baseUnit.getMapUnit(civInfo)
 
         fun getPassableNeighbours(tile: Tile): Set<Tile> =
-                tile.neighbors.filter { unit.movement.canPassThrough(it) }.toSet()
+            tile.neighbors.filter { unit.movement.canPassThrough(it) }.toSet()
 
         // both the civ name and actual civ need to be in here in order to calculate the canMoveTo...Darn
         unit.assignOwner(civInfo, false)
@@ -554,8 +554,8 @@ class TileMap(initialCapacity: Int = 10) : IsPartOfGameInfoSerialization {
             var potentialCandidates = getPassableNeighbours(currentTile)
             while (unitToPlaceTile == null && tryCount++ < 10) {
                 unitToPlaceTile = potentialCandidates
-                        .sortedByDescending { if (unit.baseUnit.isLandUnit() && !unit.cache.canMoveOnWater) it.isLand else true } // Land units should prefer to go into land tiles
-                        .firstOrNull { unit.movement.canMoveTo(it) }
+                    .sortedByDescending { if (unit.baseUnit.isLandUnit() && !unit.cache.canMoveOnWater) it.isLand else true } // Land units should prefer to go into land tiles
+                    .firstOrNull { unit.movement.canMoveTo(it) }
                 if (unitToPlaceTile != null) continue
                 // if it's not found yet, let's check their neighbours
                 val newPotentialCandidates = mutableSetOf<Tile>()

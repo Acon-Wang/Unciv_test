@@ -88,22 +88,22 @@ class GameParameters : IsPartOfGameInfoSerialization { // Default values are the
 
     // For debugging and GameStarter console output
     override fun toString() = sequence {
-            yield("$difficulty $speed $startingEra")
-            yield("${players.count { it.playerType == PlayerType.Human }} ${PlayerType.Human}")
-            yield("${players.count { it.playerType == PlayerType.AI }} ${PlayerType.AI}")
-            if (randomNumberOfPlayers) yield("Random number of Players: $minNumberOfPlayers..$maxNumberOfPlayers")
-            if (randomNumberOfCityStates) yield("Random number of City-States: $minNumberOfCityStates..$maxNumberOfCityStates")
-            else yield("$numberOfCityStates CS")
-            if (isOnlineMultiplayer) yield("Online Multiplayer")
-            if (noBarbarians) yield("No barbs")
-            if (ragingBarbarians) yield("Raging barbs")
-            if (oneCityChallenge) yield("OCC")
-            if (!nuclearWeaponsEnabled) yield("No nukes")
-            if (godMode) yield("God mode")
-            yield("Enabled Victories: " + victoryTypes.joinToString())
-            yield(baseRuleset)
-            yield(if (mods.isEmpty()) "no mods" else mods.joinToString(",", "mods=(", ")", 6) )
-        }.joinToString(prefix = "(", postfix = ")")
+        yield("$difficulty $speed $startingEra")
+        yield("${players.count { it.playerType == PlayerType.Human }} ${PlayerType.Human}")
+        yield("${players.count { it.playerType == PlayerType.AI }} ${PlayerType.AI}")
+        if (randomNumberOfPlayers) yield("Random number of Players: $minNumberOfPlayers..$maxNumberOfPlayers")
+        if (randomNumberOfCityStates) yield("Random number of City-States: $minNumberOfCityStates..$maxNumberOfCityStates")
+        else yield("$numberOfCityStates CS")
+        if (isOnlineMultiplayer) yield("Online Multiplayer")
+        if (noBarbarians) yield("No barbs")
+        if (ragingBarbarians) yield("Raging barbs")
+        if (oneCityChallenge) yield("OCC")
+        if (!nuclearWeaponsEnabled) yield("No nukes")
+        if (godMode) yield("God mode")
+        yield("Enabled Victories: " + victoryTypes.joinToString())
+        yield(baseRuleset)
+        yield(if (mods.isEmpty()) "no mods" else mods.joinToString(",", "mods=(", ")", 6) )
+    }.joinToString(prefix = "(", postfix = ")")
 
     fun getModsAndBaseRuleset(): HashSet<String> {
         return mods.toHashSet().apply { add(baseRuleset) }
