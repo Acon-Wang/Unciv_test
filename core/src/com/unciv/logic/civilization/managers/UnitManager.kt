@@ -137,7 +137,6 @@ class UnitManager(val civInfo:Civilization) {
         newList.remove(mapUnit)
         unitList = newList
         nextPotentiallyDueAt = 0
-        println("我删除了")
         civInfo.updateStatsForNextTurn() // unit upkeep
         if (mapUnit.getResourceRequirementsPerTurn().isNotEmpty())
             civInfo.cache.updateCivResources()

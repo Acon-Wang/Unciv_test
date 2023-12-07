@@ -22,14 +22,16 @@ object RulesetCache : HashMap<String, Ruleset>() {
 
 
     /** Returns error lines from loading the rulesets, so we can display the errors to users */
-    fun loadRulesets(consoleMode: Boolean = false, noMods: Boolean = false) :List<String> {
+    fun loadRulesets(consoleMode: Boolean = true, noMods: Boolean = false) :List<String> {
         val newRulesets = HashMap<String, Ruleset>()
 
         for (ruleset in BaseRuleset.values()) {
-            val fileName = "jsons/${ruleset.fullName}"
+            val fileName = "/Users/a1.2/Desktop/Unciv_test-master/android/assets/jsons/Civ V - Gods & Kings"
             val fileHandle =
                 if (consoleMode) FileHandle(fileName)
-                else Gdx.files.internal(fileName)
+                else {
+                    Gdx.files.internal(fileName)
+                }
             newRulesets[ruleset.fullName] = Ruleset().apply {
                 name = ruleset.fullName
                 load(fileHandle)
@@ -121,6 +123,9 @@ object RulesetCache : HashMap<String, Ruleset>() {
      * Any mods in the [mods] parameter marked as base ruleset (or not loaded in [RulesetCache]) are ignored.
      */
     fun getComplexRuleset(mods: LinkedHashSet<String>, optionalBaseRuleset: String? = null): Ruleset {
+
+
+
         val baseRuleset =
                 if (containsKey(optionalBaseRuleset) && this[optionalBaseRuleset]!!.modOptions.isBaseRuleset)
                     this[optionalBaseRuleset]!!

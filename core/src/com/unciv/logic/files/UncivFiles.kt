@@ -2,6 +2,7 @@ package com.unciv.logic.files
 
 import com.badlogic.gdx.Files
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Gdx.files
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.JsonReader
@@ -18,6 +19,7 @@ import com.unciv.logic.UncivShowableException
 import com.unciv.models.metadata.GameSettings
 import com.unciv.models.metadata.doMigrations
 import com.unciv.models.metadata.isMigrationNecessary
+import com.unciv.models.ruleset.RulesetCache
 import com.unciv.ui.screens.savescreens.Gzip
 import com.unciv.utils.Concurrency
 import com.unciv.utils.Log
@@ -343,6 +345,7 @@ class UncivFiles(
 
         /** @throws IncompatibleGameInfoVersionException if the [gameData] was created by a version of this game that is incompatible with the current one. */
         fun gameInfoFromString(gameData: String): GameInfo {
+
             val unzippedJson = try {
                 Gzip.unzip(gameData.trim())
             } catch (_: Exception) {

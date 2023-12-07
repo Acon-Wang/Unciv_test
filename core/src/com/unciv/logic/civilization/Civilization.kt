@@ -132,7 +132,7 @@ class Civilization : IsPartOfGameInfoSerialization {
     @Transient
     var neutralRoads = HashSet<Vector2>()
 
-    var playerType = PlayerType.AI
+    open var playerType = PlayerType.AI
 
     /** Used in online multiplayer for human players */
     var playerId = ""
@@ -324,8 +324,8 @@ class Civilization : IsPartOfGameInfoSerialization {
 
     fun getCapital(firstCityIfNoCapital: Boolean = false) = cities.firstOrNull { it.isCapital() } ?:
         if (firstCityIfNoCapital) cities.firstOrNull() else null
-    fun isHuman() = playerType == PlayerType.Human
-    fun isAI() = playerType == PlayerType.AI
+    open fun isHuman() = playerType == PlayerType.Human
+    open fun isAI() = playerType == PlayerType.AI
     fun isOneCityChallenger() = playerType == PlayerType.Human && gameInfo.gameParameters.oneCityChallenge
 
     fun isCurrentPlayer() = gameInfo.currentPlayerCiv == this
