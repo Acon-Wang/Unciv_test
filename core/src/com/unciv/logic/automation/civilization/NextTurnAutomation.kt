@@ -77,6 +77,56 @@ object NextTurnAutomation {
         tryVoteForDiplomaticVictory(civInfo)
     }
 
+    fun automateCivMoves_modify(civInfo: Civilization,Diplomacy_flag: Boolean,workerAuto:Boolean) {
+        if (civInfo.isBarbarian()) return BarbarianAutomation(civInfo).automate()
+
+        respondToPopupAlerts(civInfo)
+        TradeAutomation.respondToTradeRequests(civInfo)
+
+        if (civInfo.isMajorCiv()) {
+            if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
+                if (Diplomacy_flag) {
+                    DiplomacyAutomation.declareWar(civInfo)
+                    DiplomacyAutomation.offerPeaceTreaty(civInfo)
+                    DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)
+                }
+            }
+            if (civInfo.gameInfo.isReligionEnabled()) {
+                ReligionAutomation.spendFaithOnReligion(civInfo)
+            }
+            if (Diplomacy_flag) {
+                DiplomacyAutomation.offerOpenBorders(civInfo)
+                DiplomacyAutomation.offerResearchAgreement(civInfo)
+                DiplomacyAutomation.offerDefensivePact(civInfo)
+            }
+            TradeAutomation.exchangeLuxuries(civInfo)
+            issueRequests(civInfo)
+            adoptPolicy(civInfo)  // todo can take a second - why?
+            freeUpSpaceResources(civInfo)
+        } else {
+            civInfo.cityStateFunctions.getFreeTechForCityState()
+            civInfo.cityStateFunctions.updateDiplomaticRelationshipForCityState()
+        }
+
+        chooseTechToResearch(civInfo)
+        automateCityBombardment(civInfo)
+        UseGoldAutomation.useGold(civInfo)
+        if (!civInfo.isCityState()) {
+            protectCityStates(civInfo)
+            bullyCityStates(civInfo)
+        }
+        automateUnits_modify(civInfo,workerAuto)  // this is the most expensive part
+
+        if (civInfo.isMajorCiv() && civInfo.gameInfo.isReligionEnabled()) {
+            // Can only be done now, as the prophet first has to decide to found/enhance a religion
+            ReligionAutomation.chooseReligiousBeliefs(civInfo)
+        }
+
+        automateCities(civInfo)  // second most expensive
+        trainSettler(civInfo)
+        tryVoteForDiplomaticVictory(civInfo)
+    }
+
     fun automateGoldToSciencePercentage(civInfo: Civilization) {
         // Don't let the AI run blindly with the default convert-gold-to-science ratio if that option is enabled
         val estimatedIncome = civInfo.stats.statsForNextTurn.gold.toInt()
@@ -337,6 +387,11 @@ object NextTurnAutomation {
         val isAtWar = civInfo.isAtWar()
         val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
         for (unit in sortedUnits) UnitAutomation.automateUnitMoves(unit)
+    }
+    private fun automateUnits_modify(civInfo: Civilization,workerAuto:Boolean) {
+        val isAtWar = civInfo.isAtWar()
+        val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
+        for (unit in sortedUnits) UnitAutomation.automateUnitMoves_modify(unit,workerAuto)
     }
 
     private fun getUnitPriority(unit: MapUnit, isAtWar: Boolean): Int {

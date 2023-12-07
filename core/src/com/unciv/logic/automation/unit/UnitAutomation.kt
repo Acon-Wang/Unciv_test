@@ -231,7 +231,93 @@ object UnitAutomation {
             wander(unit, stayInTerritory = true)
     }
 
+    fun automateUnitMoves_modify(unit: MapUnit,workerAuto:Boolean) {
+        check(!unit.civ.isBarbarian()) { "Barbarians is not allowed here." }
 
+        // Might die next turn - move!
+        if (unit.health <= unit.getDamageFromTerrain() && tryHealUnit(unit)) return
+
+
+        if (unit.isCivilian()) {
+            CivilianUnitAutomation.automateCivilianUnit_modify(unit,workerAuto)
+            return
+        }
+
+        while (unit.promotions.canBePromoted() &&
+            // Restrict Human automated units from promotions via setting
+            (UncivGame.Current.settings.automatedUnitsChoosePromotions || unit.civ.isAI())) {
+            val availablePromotions = unit.promotions.getAvailablePromotions()
+                .filterNot { it.hasUnique(UniqueType.SkipPromotion) }
+            if (availablePromotions.none()) break
+            unit.promotions.addPromotion(
+                availablePromotions.filter { it.hasUnique(UniqueType.FreePromotion) }.toList().randomOrNull()?.name
+                    ?: availablePromotions.toList().random().name)
+        }
+
+        //This allows for military units with certain civilian abilities to behave as civilians in peace and soldiers in war
+        if ((unit.hasUnique(UniqueType.BuildImprovements) || unit.hasUnique(UniqueType.FoundCity) ||
+                unit.hasUnique(UniqueType.ReligiousUnit) || unit.hasUnique(UniqueType.CreateWaterImprovements))
+            && !unit.civ.isAtWar()){
+            CivilianUnitAutomation.automateCivilianUnit(unit)
+            return
+        }
+
+        if (unit.baseUnit.isAirUnit() && unit.canIntercept())
+            return AirUnitAutomation.automateFighter(unit)
+
+        if (unit.baseUnit.isAirUnit() && !unit.baseUnit.isNuclearWeapon())
+            return AirUnitAutomation.automateBomber(unit)
+
+        if (unit.baseUnit.isNuclearWeapon())
+            return AirUnitAutomation.automateNukes(unit)
+
+        if (unit.baseUnit.isAirUnit() && unit.hasUnique(UniqueType.SelfDestructs))
+            return AirUnitAutomation.automateMissile(unit)
+
+        if (tryGoToRuinAndEncampment(unit) && unit.currentMovement == 0f) return
+
+        if (tryUpgradeUnit(unit)) return
+
+        // Accompany settlers
+        if (tryAccompanySettlerOrGreatPerson(unit)) return
+
+        if (tryHeadTowardsOurSiegedCity(unit)) return
+
+        if (unit.health < 50 && (trySwapRetreat(unit) || tryHealUnit(unit))) return // do nothing but heal
+
+        // if a embarked melee unit can land and attack next turn, do not attack from water.
+        if (BattleHelper.tryDisembarkUnitToAttackPosition(unit)) return
+
+        // if there is an attackable unit in the vicinity, attack!
+        if (tryAttacking(unit)) return
+
+        if (tryTakeBackCapturedCity(unit)) return
+
+        // Focus all units without a specific target on the enemy city closest to one of our cities
+        if (HeadTowardsEnemyCityAutomation.tryHeadTowardsEnemyCity(unit)) return
+
+        if (tryGarrisoningRangedLandUnit(unit)) return
+
+        if (tryStationingMeleeNavalUnit(unit)) return
+
+        if (unit.health < 80 && tryHealUnit(unit)) return
+
+        // move towards the closest reasonably attackable enemy unit within 3 turns of movement (and 5 tiles range)
+        if (tryAdvanceTowardsCloseEnemy(unit)) return
+
+        if (tryHeadTowardsEncampment(unit)) return
+
+        if (unit.health < 100 && tryHealUnit(unit)) return
+
+        // else, try to go to unreached tiles
+        if (tryExplore(unit)) return
+
+        if (tryFogBust(unit)) return
+
+        // Idle CS units should wander so they don't obstruct players so much
+        if (unit.civ.isCityState())
+            wander(unit, stayInTerritory = true)
+    }
     /** @return true only if the unit has 0 movement left */
     private fun tryAttacking(unit: MapUnit): Boolean {
         repeat(unit.maxAttacksPerTurn() - unit.attacksThisTurn) {
@@ -253,14 +339,14 @@ object UnitAutomation {
         unit.movement.headTowards(encampmentToHeadTowards)
         return true
     }
-    
+
     private fun trySwapRetreat(unit: MapUnit): Boolean {
         if (!unit.civ.isAtWar()) return false
         // Precondition: This must be a military unit
         if (unit.isCivilian()) return false
         // Better to do a more healing oriented move then
         if (unit.getDistanceToEnemyUnit(6, true) > 4) return false
-        
+
         if (unit.baseUnit.isAirUnit()) {
             return false
         }
@@ -269,7 +355,7 @@ object UnitAutomation {
         val swapableTiles = unitDistanceToTiles.keys.filter { it.militaryUnit != null && it.militaryUnit!!.owner == unit.owner}.reversed()
         for (swapTile in swapableTiles) {
             val otherUnit = swapTile.militaryUnit!!
-            if (otherUnit.health > 80 
+            if (otherUnit.health > 80
                 && unit.getDistanceToEnemyUnit(6, false) < otherUnit.getDistanceToEnemyUnit(6,false)) {
                 if (otherUnit.baseUnit.isRanged()) {
                     // Don't swap ranged units closer than they have to be
@@ -277,8 +363,8 @@ object UnitAutomation {
                     if (unit.getDistanceToEnemyUnit(6) < range)
                         continue
                 }
-                if (unit.movement.canUnitSwapTo(swapTile)) { 
-                    unit.movement.swapMoveToTile(swapTile) 
+                if (unit.movement.canUnitSwapTo(swapTile)) {
+                    unit.movement.swapMoveToTile(swapTile)
                     return true
                 }
             }

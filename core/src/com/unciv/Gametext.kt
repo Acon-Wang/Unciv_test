@@ -7,7 +7,7 @@ import java.io.File
 
 open class Gametext(){
 
-    fun main(file_path:String,PreTurns:Int){
+    fun main(file_path:String,PreTurns:Int,Diplomacy_flag:Boolean,workerAuto:Boolean){
         val file = File(file_path)
         val content: String = file.readText()
         val uncivGame = UncivGame()
@@ -18,7 +18,7 @@ open class Gametext(){
             val game: GameInfo = UncivFiles.gameInfoFromString_easy(content)
             uncivGame.gameInfo = game
             UncivGame.Current = uncivGame
-            game.nextTenTurn(PreTurns)
+            game.nextTenTurn(PreTurns,Diplomacy_flag,workerAuto)
         }
 
     }

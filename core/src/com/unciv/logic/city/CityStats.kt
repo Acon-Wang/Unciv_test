@@ -485,27 +485,27 @@ class CityStats(val city: City) {
         statPercentBonusTree = newStatsBonusTree
     }
 
-    fun update(currentConstruction: IConstruction = city.cityConstructions.getCurrentConstruction(),
+    fun update(currentConstruction: IConstruction = city.cityConstructions.getCurrentConstruction(),// 获取当前建设项目，默认为城市当前的建设
                updateTileStats:Boolean = true,
                updateCivStats:Boolean = true,
                localUniqueCache:LocalUniqueCache = LocalUniqueCache()) {
 
-        if (updateTileStats) updateTileStats(localUniqueCache)
+        if (updateTileStats) updateTileStats(localUniqueCache)// 如果需要更新地块状态，这个过程消耗较大
 
         // We need to compute Tile yields before happiness
 
-        val statsFromBuildings = city.cityConstructions.getStats(localUniqueCache) // this is performance heavy, so calculate once
-        updateBaseStatList(statsFromBuildings)
-        updateCityHappiness(statsFromBuildings)
-        updateStatPercentBonusList(currentConstruction)
+        val statsFromBuildings = city.cityConstructions.getStats(localUniqueCache) // // 这个操作性能开销较大，因此只计算一次
+        updateBaseStatList(statsFromBuildings)// 更新基础统计数据列表，这个过程消耗较大
+        updateCityHappiness(statsFromBuildings)// 更新城市幸福度，这个过程消耗较大
+        updateStatPercentBonusList(currentConstruction)// 更新统计百分比奖励列表，这个过程消耗较大
 
         updateFinalStatList(currentConstruction) // again, we don't edit the existing currentCityStats directly, in order to avoid concurrency exceptions
+        // 同样，我们不直接编辑现有的currentCityStats以避免并发异常
+        val newCurrentCityStats = Stats()// 创建新的统计对象
+        for (stat in finalStatList.values) newCurrentCityStats.add(stat)// 将所有统计数据加入新的统计对象中
+        currentCityStats = newCurrentCityStats// 更新当前城市的统计数据
 
-        val newCurrentCityStats = Stats()
-        for (stat in finalStatList.values) newCurrentCityStats.add(stat)
-        currentCityStats = newCurrentCityStats
-
-        if (updateCivStats) city.civ.updateStatsForNextTurn()
+        if (updateCivStats) city.civ.updateStatsForNextTurn()// 如果需要更新文明状态，这个过程消耗较大
     }
 
     private fun updateFinalStatList(currentConstruction: IConstruction) {

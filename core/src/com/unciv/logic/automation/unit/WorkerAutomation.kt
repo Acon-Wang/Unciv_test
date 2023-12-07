@@ -354,12 +354,16 @@ class WorkerAutomation(
                 && !UncivGame.Current.settings.automatedWorkersReplaceImprovements
                 && unit.civ.isHuman())
             return false
-
+        // 如果瓷砖未被改进或者是坏的改进
         if (tile.improvement == null || junkImprovement) {
+            // 如果有正在进行的改进并且单位可以建造改进
             if (tile.improvementInProgress != null && unit.canBuildImprovement(tile.getTileImprovementInProgress()!!, tile)) return true
+            // 选择改进
             val chosenImprovement = chooseImprovement(unit, tile)
+            // 如果选择的改进不为空并且瓷砖的改进函数可以建造改进并且单位可以建造改进
             if (chosenImprovement != null && tile.improvementFunctions.canBuildImprovement(chosenImprovement, civInfo) && unit.canBuildImprovement(chosenImprovement, tile)) return true
         } else if (!tile.containsGreatImprovement() && tile.hasViewableResource(civInfo)
+            // 否则，如果瓷砖不包含伟大的改进并且拥有可见资源并且瓷砖资源未被当前改进所改进并且选择的改进不为空并且可以建造
             && !tile.tileResource.isImprovedBy(tile.improvement!!)
             && (chooseImprovement(unit, tile) // if the chosen improvement is not null and buildable
                 .let { it != null && tile.improvementFunctions.canBuildImprovement(it, civInfo) && unit.canBuildImprovement(it, tile)}))
@@ -390,30 +394,35 @@ class WorkerAutomation(
      * Determine the improvement appropriate to a given tile and worker
      */
     private fun chooseImprovement(unit: MapUnit, tile: Tile): TileImprovement? {
-
+    // 获取所有可能的瓷砖改进
         val potentialTileImprovements = ruleSet.tileImprovements.filter {
             unit.canBuildImprovement(it.value, tile)
                     && tile.improvementFunctions.canBuildImprovement(it.value, civInfo)
                     && (it.value.uniqueTo == null || it.value.uniqueTo == unit.civ.civName)
         }
+        // 如果没有可行的改进，则返回空
         if (potentialTileImprovements.isEmpty()) return null
-
+        // 创建本地唯一缓存
         val localUniqueCache = LocalUniqueCache()
+        // 获取改进的排名
         fun getImprovementRanking(improvementName: String): Float {
             val improvement = ruleSet.tileImprovements[improvementName]!!
             val stats = tile.stats.getStatDiffForImprovement(improvement, civInfo, tile.getCity(), localUniqueCache)
             return Automation.rankStatsValue(stats, unit.civ)
         }
-
+        // 获取最佳可建造的改进
         val bestBuildableImprovement = potentialTileImprovements.values.asSequence()
             .map { Pair(it, getImprovementRanking(it.name)) }
             .filter { it.second > 0f }
             .maxByOrNull { it.second }?.first
 
+        // 获取上一个地形
         val lastTerrain = tile.lastTerrain
 
+        // 检查地形是否可移除
         fun isRemovable(terrain: Terrain): Boolean = ruleSet.tileImprovements.containsKey(Constants.remove + terrain.name)
 
+        // 根据资源情况确定改进
         val improvementStringForResource: String? = when {
             tile.resource == null || !tile.hasViewableResource(civInfo) -> null
             tile.terrainFeatures.isNotEmpty()
@@ -426,16 +435,19 @@ class WorkerAutomation(
         }
 
         // After gathering all the data, we conduct the hierarchy in one place
+        // 在收集所有数据之后，我们在一个地方进行层次结构处理
         val improvementString = when {
             tile.improvementInProgress != null -> tile.improvementInProgress!!
             improvementStringForResource != null -> if (improvementStringForResource==tile.improvement) null else improvementStringForResource
             // if this is a resource that HAS an improvement, but this unit can't build it, don't waste your time
+            // 如果这是一个具有改进的资源，但该单位无法建造它，不要浪费时间
             tile.resource != null && tile.tileResource.getImprovements().any() -> return null
             bestBuildableImprovement == null -> null
 
             tile.improvement != null &&
                     getImprovementRanking(tile.improvement!!) > getImprovementRanking(bestBuildableImprovement.name)
                 -> null // What we have is better, even if it's pillaged we should repair it
+            // 即使被劫掠，我们拥有的更好，我们应该修复它
 
             lastTerrain.let {
                 isRemovable(it) &&
