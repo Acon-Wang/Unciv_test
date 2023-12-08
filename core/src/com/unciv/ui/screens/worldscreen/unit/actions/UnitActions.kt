@@ -29,6 +29,13 @@ object UnitActions {
         internalAction.invoke()
         return true
     }
+    fun invokeUnitAction_modify(unit: MapUnit, unitActionType: UnitActionType): Boolean {
+        val unitAction = getNormalActions(unit).firstOrNull { it.type == unitActionType }
+            ?: getAdditionalActions_modify(unit).firstOrNull { it.type == unitActionType }
+        val internalAction = unitAction?.action ?: return false
+        internalAction.invoke()
+        return true
+    }
 
     private fun getNormalActions(unit: MapUnit): List<UnitAction> {
         val tile = unit.getTile()
@@ -105,7 +112,29 @@ object UnitActions {
 
         return actionList
     }
+    private fun getAdditionalActions_modify(unit: MapUnit): List<UnitAction> {
+        val tile = unit.getTile()
+        val actionList = ArrayList<UnitAction>()
 
+        if (unit.isMoving()) {
+            actionList += UnitAction(UnitActionType.ShowUnitDestination) {
+                GUI.getMap().setCenterPosition(unit.getMovementDestination().position, true)
+            }
+        }
+        addSleepActions(actionList, unit, true)
+        addFortifyActions(actionList, unit, true)
+        addAutomateAction(unit, actionList, false)
+
+//         addSwapAction(unit, actionList)
+//         addDisbandAction(actionList, unit)
+        addGiftAction(unit, actionList, tile)
+        if (unit.isCivilian()) addExplorationActions(unit, actionList)
+
+
+        addToggleActionsAction_modify(unit, actionList)
+
+        return actionList
+    }
     private fun addSwapAction(unit: MapUnit, actionList: ArrayList<UnitAction>) {
         val worldScreen = GUI.getWorldScreen()
         // Air units cannot swap
@@ -320,6 +349,16 @@ object UnitActions {
             action = {
                 unit.showAdditionalActions = !unit.showAdditionalActions
                 GUI.getWorldScreen().bottomUnitTable.update()
+            }
+        )
+    }
+    private fun addToggleActionsAction_modify(unit: MapUnit, actionList: ArrayList<UnitAction>) {
+        actionList += UnitAction(
+            type = if (unit.showAdditionalActions) UnitActionType.HideAdditionalActions
+            else UnitActionType.ShowAdditionalActions,
+            action = {
+                unit.showAdditionalActions = !unit.showAdditionalActions
+//                 GUI.getWorldScreen().bottomUnitTable.update()
             }
         )
     }
