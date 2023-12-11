@@ -396,8 +396,8 @@ class GameInfo : IsPartOfGameInfoSerialization, HasGameInfoSerializationVersion 
 
 //         }
         player.playerType=PlayerType.Human//恢复人类玩家身份，取消ai托管。
-        if (turns == DebugUtils.SIMULATE_UNTIL_TURN)
-            DebugUtils.SIMULATE_UNTIL_TURN = 0
+//         if (turns == DebugUtils.SIMULATE_UNTIL_TURN)
+//             DebugUtils.SIMULATE_UNTIL_TURN = 0
 
         // We found human player, so we are making him current
         currentTurnStartTime = System.currentTimeMillis()

@@ -695,6 +695,21 @@
 		"promotions": ["[Chu-Ko-Nu] ability"],
 		"attackSound": "crossbow"
 	},
+    {
+        "name": "Chu-Ko-Nu",
+        "unitType": "Archery",
+        "uniqueTo": "the Shu Kingdom",
+        "movement": 2,
+        "strength": 13,
+        "rangedStrength": 14,
+        "replaces": "Crossbowman",
+        "cost": 120,
+        "requiredTech": "Machinery",
+        "upgradesTo": "Gatling Gun",
+        "obsoleteTech": "Industrialization",
+        "promotions": ["[Chu-Ko-Nu] ability"],
+        "attackSound": "crossbow"
+    },
 	{
 		"name": "Longbowman",
 		"unitType": "Archery",
@@ -739,6 +754,21 @@
 		"uniques": ["No defensive terrain bonus","Must set up to ranged attack"],
 		"attackSound": "throw"
 	},
+    {
+        "name": "Hwach'a",
+        "unitType": "Siege",
+        "replaces": "Trebuchet",
+        "uniqueTo": "the Wu Kingdom",
+        "movement": 2,
+        "strength": 11,
+        "rangedStrength": 26,
+        "cost": 120,
+        "requiredTech": "Physics",
+        "obsoleteTech": "Chemistry",
+        "upgradesTo": "Cannon",
+        "uniques": ["No defensive terrain bonus","Must set up to ranged attack"],
+        "attackSound": "throw"
+    },
 	{
 		"name": "Longswordsman",
 		"unitType": "Sword",
@@ -815,6 +845,21 @@
 		"hurryCostModifier": 30,
 		"attackSound": "cannon"
 	},
+    {
+        "name": "Turtle Ship",
+        "unitType": "Melee Water",
+        "replaces": "Caravel",
+        "uniqueTo": "the Wu Kingdom",
+        "movement": 4,
+        "strength": 36,
+        "cost": 120,
+        "requiredTech": "Astronomy",
+        "upgradesTo": "Ironclad",
+        "obsoleteTech": "Combustion",
+        "uniques": ["Cannot enter ocean tiles"],
+        "hurryCostModifier": 30,
+        "attackSound": "cannon"
+    },
 	{
 		"name": "Musketman",
 		"unitType": "Gunpowder",
@@ -1068,6 +1113,20 @@
 		"promotions": ["Drill I","Home Sweet Home"],
 		"attackSound": "shot"
 	},
+    {
+        "name": "Mehal Sefari",
+        "unitType": "Gunpowder",
+        "replaces": "Rifleman",
+        "uniqueTo": "the Wei Kingdom",
+        "movement": 2,
+        "strength": 34,
+        "cost": 200,
+        "requiredTech": "Rifling",
+        "obsoleteTech": "Replaceable Parts",
+        "upgradesTo": "Great War Infantry",
+        "promotions": ["Drill I","Home Sweet Home"],
+        "attackSound": "shot"
+    },
 	{
 		"name": "Cavalry",
 		"unitType": "Mounted",

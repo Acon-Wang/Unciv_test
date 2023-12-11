@@ -32,6 +32,17 @@
 		"maintenance": 1,
 		"uniques": ["Destroyed when the city is captured"] //"Hidden when religion is disabled"
 	},
+    {
+    "name": "Stele",
+    "replaces": "Monument",
+    "uniqueTo": "the Wei Kingdom",
+    "culture": 2,
+    "faith": 2,
+    "cost": 40,
+    "hurryCostModifier": 40,
+    "maintenance": 1,
+    "uniques": ["Destroyed when the city is captured"] //"Hidden when religion is disabled"
+},
 	// Column 1
 	{
 		"name": "Granary",
@@ -109,6 +120,15 @@
 		"uniques": ["[+1 Science] per [2] population [in this city]"],
 		"requiredTech": "Writing"
 	},
+    {
+        "name": "Paper Maker",
+        "replaces": "Library",
+        "uniqueTo": "the Shu Kingdom",
+        "hurryCostModifier": 25,
+        "gold": 2,
+        "uniques": ["[+1 Science] per [2] population [in this city]"],
+        "requiredTech": "Writing"
+    },
 	{
 		"name": "The Great Library",
 		"science": 3,

@@ -128,10 +128,9 @@ class WorkerAutomation(
         if (getPriority(tileToWork) < 3) { // building roads is more important
             if (tryConnectingCities(unit)) return
         }
-//         else{
-//             NumOfWokerUse  += 1
-//             if(civInfo.isHuman())println(NumOfWokerUse)
-//         }
+        else{
+            unit.NumOfWokerUse += 1
+        }
 
         if (tileToWork != currentTile) {
             debug("WorkerAutomation: %s -> head towards %s", unit.label(), tileToWork)

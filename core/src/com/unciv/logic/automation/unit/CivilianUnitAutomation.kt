@@ -12,6 +12,11 @@ import com.unciv.ui.screens.worldscreen.unit.actions.UnitActions
 object CivilianUnitAutomation {
 
     fun automateCivilianUnit(unit: MapUnit) {
+        if (unit.NumOfWokerUse==3){
+            unit.destroy()
+            return
+        }
+
         if (tryRunAwayIfNeccessary(unit)) return
 
         if (unit.currentTile.isCityCenter() && unit.currentTile.getCity()!!.isCapital()
@@ -129,6 +134,11 @@ object CivilianUnitAutomation {
         return // The AI doesn't know how to handle unknown civilian units
     }
     fun automateCivilianUnit_modify(unit: MapUnit,workerAuto:Boolean) {
+
+        if (unit.NumOfWokerUse==3){
+            unit.destroy()
+            return
+        }
         if (tryRunAwayIfNeccessary(unit)) return
 
         if (unit.currentTile.isCityCenter() && unit.currentTile.getCity()!!.isCapital()

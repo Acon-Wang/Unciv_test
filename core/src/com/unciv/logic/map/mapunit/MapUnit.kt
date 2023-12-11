@@ -124,7 +124,7 @@ class MapUnit : IsPartOfGameInfoSerialization {
 
     var religion: String? = null
     var religiousStrengthLost = 0
-
+    var NumOfWokerUse: Int = 0//工人的使用次数
     /**
      * Container class to represent a single instant in a [MapUnit]'s recent movement history.
      *
