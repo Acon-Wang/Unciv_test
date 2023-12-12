@@ -846,6 +846,7 @@ open class Tile : IsPartOfGameInfoSerialization {
         improvementInProgress = improvement.name
         turnsToImprovement = if (civInfo.gameInfo.gameParameters.godMode) 1
         else improvement.getTurnsToBuild(civInfo, unit)
+        unit.wokeruseing = turnsToImprovement
     }
 
     /** Clears [improvementInProgress] and [turnsToImprovement] */

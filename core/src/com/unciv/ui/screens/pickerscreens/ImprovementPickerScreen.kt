@@ -51,8 +51,14 @@ class ImprovementPickerScreen(
             tile.stopWorkingOnImprovement()
             // no onAccept() - Worker can stay selected
         } else {
-            if (improvement.name != tile.improvementInProgress)
+            if (improvement.name != tile.improvementInProgress){
                 tile.startWorkingOnImprovement(improvement, currentPlayerCiv, unit)
+                unit.NumOfWokerUse+=1
+                println("我在工作")
+                println(unit.NumOfWokerUse)
+                println(unit.civ.gameInfo.turns)
+            }
+
             unit.action = null // this is to "wake up" the worker if it's sleeping
             onAccept()
         }

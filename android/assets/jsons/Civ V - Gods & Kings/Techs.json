@@ -8,11 +8,11 @@
 		"techs": [
 			{
 				"name": "Agriculture",
-				"row": 6,
+				"row": 5,
 				"quote": "'Where tillage begins, other arts follow. The farmers therefore are the founders of human civilization.' - Daniel Webster",
-				"uniques": ["Starting tech"]
+				"uniques": ["Starting tech","Enables Open Borders agreements","Enables conversion of city production to [Science]","Enables Research agreements","Enables Defensive Pacts"]
 			}
-		]
+        ]
 	},
 	{
 		"columnNumber": 1,
@@ -191,7 +191,7 @@
 				"name": "Civil Service",
 				"row": 5,
 				"prerequisites": ["Currency","Horseback Riding","Drama and Poetry"],
-				"uniques": ["Enables Open Borders agreements"],
+//				"uniques": ["Enables Open Borders agreements"],
 				"quote": "'The only thing that saves us from the bureaucracy is its inefficiency' - Eugene McCarthy"
 			},
 			{
@@ -227,14 +227,14 @@
 				"name": "Education",
 				"row": 3,
 				"prerequisites": ["Theology","Civil Service"],
-				"uniques": ["Enables conversion of city production to [Science]","Enables Research agreements"],
+//				"uniques": ["Enables conversion of city production to [Science]","Enables Research agreements"],
 				"quote": "'Education is the best provision for old age.' - Aristotle"
 			},
 			{
 				"name": "Chivalry",
 				"row": 6,
 				"prerequisites": ["Civil Service","Guilds"],
-                "uniques": ["Enables Defensive Pacts"],
+//                "uniques": ["Enables Defensive Pacts"],
                 "quote": "'Whoso pulleth out this sword of this stone and anvil, is rightwise king born of all England.' - Malory"
 			},
 			{

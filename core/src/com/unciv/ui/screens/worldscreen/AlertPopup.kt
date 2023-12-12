@@ -97,6 +97,7 @@ class AlertPopup(
             AlertType.BulliedProtectedMinor, AlertType.AttackedProtectedMinor -> addBulliedOrAttackedProtectedMinor()
             AlertType.RecapturedCivilian -> addRecapturedCivilian()
             AlertType.GameHasBeenWon -> addGameHasBeenWon()
+            AlertType.StartGame -> addStartGame()
         }
     }
 
@@ -332,6 +333,12 @@ class AlertPopup(
         addLeaderName(civInfo)
         addGoodSizedLabel(civInfo.nation.startIntroPart1).row()
         addGoodSizedLabel(civInfo.nation.startIntroPart2).row()
+        addCloseButton("Let's begin!")
+    }
+
+
+    private fun addStartGame() {
+        addGoodSizedLabel("开始开始")
         addCloseButton("Let's begin!")
     }
 

@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.SerializationException
 import com.unciv.Constants
 import com.unciv.logic.MissingModsException
 import com.unciv.logic.UncivShowableException
+import com.unciv.logic.civilization.AlertType
+import com.unciv.logic.civilization.PopupAlert
 import com.unciv.logic.files.PlatformSaverLoader
 import com.unciv.logic.files.UncivFiles
 import com.unciv.models.ruleset.RulesetCache
@@ -28,6 +30,7 @@ import com.unciv.ui.popups.Popup
 import com.unciv.ui.popups.ToastPopup
 import com.unciv.ui.screens.pickerscreens.Github
 import com.unciv.ui.screens.pickerscreens.Github.folderNameToRepoName
+import com.unciv.ui.screens.worldscreen.AlertPopup
 import com.unciv.utils.Concurrency
 import com.unciv.utils.Log
 import com.unciv.utils.launchOnGLThread

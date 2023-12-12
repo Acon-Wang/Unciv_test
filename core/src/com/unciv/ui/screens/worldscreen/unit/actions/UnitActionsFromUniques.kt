@@ -404,7 +404,7 @@ object UnitActionsFromUniques {
             && !tile.isCityCenter() && tile.improvementInProgress != Constants.repair
 
         val turnsToBuild = getRepairTurns(unit)
-
+        unit.wokeruseing = turnsToBuild
         return UnitAction(UnitActionType.Repair,
             title = "${UnitActionType.Repair} [${unit.currentTile.getImprovementToRepair()!!.name}] - [${turnsToBuild}${Fonts.turn}]",
             action = {

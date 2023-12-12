@@ -125,6 +125,7 @@ class MapUnit : IsPartOfGameInfoSerialization {
     var religion: String? = null
     var religiousStrengthLost = 0
     var NumOfWokerUse: Int = 0//工人的使用次数
+    var wokeruseing:Int = 0 //工人剩余使用回合数
     /**
      * Container class to represent a single instant in a [MapUnit]'s recent movement history.
      *
@@ -186,6 +187,8 @@ class MapUnit : IsPartOfGameInfoSerialization {
         toReturn.maxAbilityUses.putAll(maxAbilityUses)
         toReturn.abilityToTimesUsed.putAll(abilityToTimesUsed)
         toReturn.religion = religion
+        toReturn.NumOfWokerUse = NumOfWokerUse
+        toReturn.wokeruseing = wokeruseing
         toReturn.religiousStrengthLost = religiousStrengthLost
         toReturn.movementMemories = movementMemories.copy()
         toReturn.mostRecentMoveType = mostRecentMoveType

@@ -11,8 +11,10 @@ import com.unciv.Constants
 import com.unciv.UncivGame
 import com.unciv.logic.GameInfo
 import com.unciv.logic.UncivShowableException
+import com.unciv.logic.civilization.AlertType
 import com.unciv.logic.civilization.Civilization
 import com.unciv.logic.civilization.PlayerType
+import com.unciv.logic.civilization.PopupAlert
 import com.unciv.logic.civilization.diplomacy.DiplomaticStatus
 import com.unciv.logic.event.EventBus
 import com.unciv.logic.map.MapVisualization
@@ -87,7 +89,7 @@ class WorldScreen(
 ) : BaseScreen() {
     /** When set, causes the screen to update in the next [render][BaseScreen.render] event */
     var shouldUpdate = false
-
+    var fiststartgame = false
     /** Indicates it's the player's ([viewingCiv]) turn */
     var isPlayersTurn = viewingCiv.isCurrentPlayer()
         internal set     // only this class is allowed to make changes
@@ -230,6 +232,7 @@ class WorldScreen(
         newGameSetupInfo.mapParameters.reseed()
         val newGameScreen = NewGameScreen(newGameSetupInfo)
         game.pushScreen(newGameScreen)
+
     }
 
     fun openSaveGameScreen() {

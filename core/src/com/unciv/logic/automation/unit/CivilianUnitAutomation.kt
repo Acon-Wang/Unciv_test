@@ -12,10 +12,17 @@ import com.unciv.ui.screens.worldscreen.unit.actions.UnitActions
 object CivilianUnitAutomation {
 
     fun automateCivilianUnit(unit: MapUnit) {
-        if (unit.NumOfWokerUse==3){
+        if (unit.NumOfWokerUse==3 && unit.wokeruseing == 0 ){
+
+            if (unit.civ.civName=="Greece"){
+                println(unit.name)
+                println("我没了在")
+                println(unit.civ.gameInfo.turns)
+            }
             unit.destroy()
             return
         }
+        if (unit.wokeruseing>0) unit.wokeruseing -=1
 
         if (tryRunAwayIfNeccessary(unit)) return
 

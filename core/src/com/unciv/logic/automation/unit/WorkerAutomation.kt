@@ -128,9 +128,6 @@ class WorkerAutomation(
         if (getPriority(tileToWork) < 3) { // building roads is more important
             if (tryConnectingCities(unit)) return
         }
-        else{
-            unit.NumOfWokerUse += 1
-        }
 
         if (tileToWork != currentTile) {
             debug("WorkerAutomation: %s -> head towards %s", unit.label(), tileToWork)
@@ -165,12 +162,26 @@ class WorkerAutomation(
 
         if (currentTile.isPillaged()) {
             debug("WorkerAutomation: ${unit.label()} -> repairs $currentTile")
+            unit.NumOfWokerUse +=1
+            if (unit.civ.civName=="Greece"){
+                println(unit.name)
+                println("我在自动修理")
+                println(unit.NumOfWokerUse)
+                println(unit.civ.gameInfo.turns)
+            }
             UnitActionsFromUniques.getRepairAction(unit)?.action?.invoke()
             return
         }
 
         if (currentTile.improvementInProgress == null && tileCanBeImproved(unit, currentTile)) {
             debug("WorkerAutomation: ${unit.label()} -> start improving $currentTile")
+            unit.NumOfWokerUse +=1
+            if (unit.civ.civName=="Greece"){
+                println(unit.name)
+                println("我在自动工作")
+                println(unit.NumOfWokerUse)
+                println(unit.civ.gameInfo.turns)
+            }
             return currentTile.startWorkingOnImprovement(chooseImprovement(unit, currentTile)!!, civInfo, unit)
         }
 
@@ -178,7 +189,7 @@ class WorkerAutomation(
 
         if (unit.cache.hasUniqueToCreateWaterImprovements) {
             // Support Alpha Frontier-Style Workers that _also_ have the "May create improvements on water resources" unique
-            if (automateWorkBoats(unit)) return
+            if (automateWorkBoats(unit))return
         }
 
         if (tryConnectingCities(unit)) return //nothing to do, try again to connect cities
