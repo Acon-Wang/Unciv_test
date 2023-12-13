@@ -120,6 +120,10 @@ class ConstructionAutomation(val cityConstructions: CityConstructions){
             // Nobody can plan 30 turns ahead, I don't care how cost-efficient you are.
             else relativeCostEffectiveness.minByOrNull { it.remainingWork }!!.choice
 
+        var isMiliy = city.getRuleset().units.values.asSequence()
+                .filter { it.name == chosenConstruction }
+        if (isMiliy.firstOrNull()?.isMilitary() == true) city.population.addPopulation(-1)
+
         civInfo.addNotification(
             "Work has started on [$chosenConstruction]",
             CityAction(city.location),
@@ -127,6 +131,7 @@ class ConstructionAutomation(val cityConstructions: CityConstructions){
             NotificationIcon.Construction
         )
         cityConstructions.currentConstructionFromQueue = chosenConstruction
+
     }
 
     private fun addMilitaryUnitChoice() {
