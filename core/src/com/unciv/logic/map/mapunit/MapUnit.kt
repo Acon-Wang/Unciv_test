@@ -578,15 +578,15 @@ class MapUnit : IsPartOfGameInfoSerialization {
     /** Returns the health points [MapUnit] will receive if healing on [tile] */
     fun rankTileForHealing(tile: Tile): Int {
         val isFriendlyTerritory = tile.isFriendlyTerritory(civ)
-
+        //城市内+10  国境内+3  国境外不加血
         var healing = when {
-            tile.isCityCenter() -> 25
-            tile.isWater && isFriendlyTerritory && (baseUnit.isWaterUnit() || isTransported) -> 20 // Water unit on friendly water
-            tile.isWater && isFriendlyTerritory && cache.canMoveOnWater -> 20 // Treated as a water unit on friendly water
+            tile.isCityCenter() -> 10 //20->10
+            tile.isWater && isFriendlyTerritory && (baseUnit.isWaterUnit() || isTransported) -> 3 // Water unit on friendly water
+            tile.isWater && isFriendlyTerritory && cache.canMoveOnWater -> 3 // Treated as a water unit on friendly water
             tile.isWater -> 0 // All other water cases
-            isFriendlyTerritory -> 20 // Allied territory
-            tile.getOwner() == null -> 10 // Neutral territory
-            else -> 10 // Enemy territory
+            isFriendlyTerritory -> 3 // Allied territory
+            tile.getOwner() == null -> 0 // Neutral territory
+            else -> 0 // Enemy territory
         }
 
         val mayHeal = healing > 0 || (tile.isWater && hasUnique(UniqueType.HealsOutsideFriendlyTerritory, checkCivInfoUniques = true))
