@@ -86,18 +86,18 @@ object NextTurnAutomation {
         if (civInfo.isMajorCiv()) {
             if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
                 if (Diplomacy_flag) {
-                    DiplomacyAutomation.declareWar(civInfo)
-                    DiplomacyAutomation.offerPeaceTreaty(civInfo)
-                    DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)
+                    DiplomacyAutomation.declareWar(civInfo)//发起战争
                 }
+                DiplomacyAutomation.offerPeaceTreaty(civInfo)//和平协定
+                DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)//声明友好
             }
             if (civInfo.gameInfo.isReligionEnabled()) {
                 ReligionAutomation.spendFaithOnReligion(civInfo)
             }
+            DiplomacyAutomation.offerOpenBorders(civInfo)//保留开放边境
             if (Diplomacy_flag) {
-                DiplomacyAutomation.offerOpenBorders(civInfo)
-                DiplomacyAutomation.offerResearchAgreement(civInfo)
-                DiplomacyAutomation.offerDefensivePact(civInfo)
+                DiplomacyAutomation.offerResearchAgreement(civInfo)//研究协定
+                DiplomacyAutomation.offerDefensivePact(civInfo)//防御协定
             }
             TradeAutomation.exchangeLuxuries(civInfo)
             issueRequests(civInfo)
