@@ -146,7 +146,7 @@ open class UncivGame(val isConsoleMode: Boolean = false) : Game(), PlatformSpeci
 
     var worldScreen: WorldScreen? = null
         private set
-
+    var isstart :Boolean =false
     /** Flag used only during initialization until the end of [create] */
     protected var isInitialized = false
         private set
@@ -259,8 +259,10 @@ open class UncivGame(val isConsoleMode: Boolean = false) : Game(), PlatformSpeci
     suspend fun loadGame(newGameInfo: GameInfo, callFromLoadScreen: Boolean = false): WorldScreen = withThreadPoolContext toplevel@{
         val prevGameInfo = gameInfo
         gameInfo = newGameInfo
-
-
+        if(!isstart&&settings.tutorialsShown.contains("Introduction")){
+            settings.tutorialsShown.remove("Introduction")
+            isstart=true
+        }
         if (gameInfo?.gameParameters?.isOnlineMultiplayer == true
             && gameInfo?.gameParameters?.anyoneCanSpectate == false
             && gameInfo!!.civilizations.none { it.playerId == settings.multiplayer.userId }) {
@@ -323,7 +325,6 @@ open class UncivGame(val isConsoleMode: Boolean = false) : Game(), PlatformSpeci
         val curWorldScreen = worldScreen
         val curGameInfo = gameInfo
         if (curWorldScreen == null || curGameInfo == null) return
-
         loadGame(curGameInfo)
     }
 

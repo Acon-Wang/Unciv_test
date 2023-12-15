@@ -29,7 +29,7 @@ object RulesetCache : HashMap<String, Ruleset>() {
     fun loadRulesets(consoleMode: Boolean = false, noMods: Boolean = false) :List<String> {
         val newRulesets = HashMap<String, Ruleset>()
         for (ruleset in BaseRuleset.values()) {
-            val fileName = "/Users/a1.2/AndroidStudioProjects/Unciv_test/android/assets/jsons/Civ V - Gods & Kings"
+            val fileName = "../../android/assets/jsons/Civ V - Gods & Kings"
             val fileHandle =
                 if (consoleMode) FileHandle(fileName)
                 else Gdx.files.internal(fileName)

@@ -127,7 +127,7 @@
 //            "Kaifeng","Ningbo","Baoding","Yangzhou","Harbin","Chongqing","Luoyang","Kunming","Taipei","Shenyang",
 //            "Taiyuan","Tainan","Dalian","Lijiang","Wuxi","Suzhou","Maoming","Shaoguan","Yangjiang","Heyuan","Huangshi",
 //            "Yichang","Yingtian","Xinyu","Xinzheng","Handan","Dunhuang","Gaoyu","Nantong","Weifang","Xikang"],
-        "cities":["chengdu","hangzhong","badong","jingzhou"],
+        "cities":["chengdu","hangzhong","badong","jingzhou","wudu","yingping","jianning","zhuti","yongchang","yunnan","yongan"],
         "spyNames": ["Li", "Chen", "Zhang", "Liu", "Yang", "Huang", "Zhao", "Wu", "Zhou", "Sun"]
 
     },
@@ -160,7 +160,7 @@
 //        "cities": ["Seoul","Busan","Jeonju","Daegu","Pyongyang","Kaesong","Suwon","Gwangju","Gangneung","Hamhung","Wonju","Ulsan",
 //            "Changwon","Andong","Gongju","Haeju","Cheongju","Mokpo","Dongducheon","Geoje","Suncheon","Jinju","Sangju",
 //            "Rason","Gyeongju","Chungju","Sacheon","Gimje","Anju"],
-        "cities":["wuchang","jianye","jiangxia","yangzhou"],
+        "cities": ["jianye","wuchang","jiangxia","yangzhou","changsha","poyang","lingling","jiaozhi","guiyang","lujiang"],
         "spyNames": ["Kim", "Park", "Han", "Na", "Kong", "Yu", "Ahn", "Da", "Eun"]
     },
     {
@@ -195,7 +195,7 @@
 //            "Mek'ele","Awasa","Jimma","Jijiga","Dessie","Debre Berhan","Shashamane","Debre Zeyit","Sodo","Hosaena",
 //            "Nekemte","Asella","Dila","Adigrat","Debre Markos","Kombolcha","Debre Tabor","Sebeta",
 //            "Shire","Ambo","Negele Arsi","Gambela","Ziway","Weldiya"],
-        "cities":["luoyang","xiangyang","changan","hefei"],
+        "cities":["luoyang","xiangyang","changan","hefei","hongnong","dongjun","yecheng","pengcheng","guangling","tianshui","zhangye","yanmen","wancheng","shanggu"],
         "spyNames": ["Mulu Ken", "Wendimu", "Li'ol", "Demeke", "Mulu Alem", "Abebech", "Zema", "Mihret", "Kebedech", "Alemnesh"]
     },
 	{

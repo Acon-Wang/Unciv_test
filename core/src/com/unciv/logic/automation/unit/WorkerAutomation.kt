@@ -103,8 +103,6 @@ class WorkerAutomation(
     private val bfsCache = HashMap<Vector2, BFS>()
 
     //todo: UnitMovementAlgorithms.canReach still very expensive and could benefit from caching, it's not using BFS
-    //记录工人改进地块除修路的次数
-//     private var NumOfWokerUse = 0
     ///////////////////////////////////////// Helpers /////////////////////////////////////////
 
     companion object {
@@ -112,11 +110,6 @@ class WorkerAutomation(
         private fun MapUnit.label() = toString() + " " + getTile().position.toString()
     }
 
-
-//     fun destroy(): Boolean{
-//         if(civInfo.isHuman()) println("我没了～")
-//         return NumOfWokerUse>=3
-//     }
     ///////////////////////////////////////// Methods /////////////////////////////////////////
     /**
      * Automate one Worker - decide what to do and where, move, start or continue work.
@@ -144,14 +137,18 @@ class WorkerAutomation(
             // Unit may stop due to Enemy Unit within walking range during doAction() call
             if (unit.currentMovement > 0 && reachedTile == tileToWork) {
                 if (reachedTile.isPillaged()) {
+                    if(unit.NumOfWokerUse==3) unit.destroy() //防止出错
                     debug("WorkerAutomation: ${unit.label()} -> repairs $reachedTile")
+                    unit.NumOfWokerUse +=1
                     UnitActionsFromUniques.getRepairAction(unit)?.action?.invoke()
                     return
                 }
                 if (reachedTile.improvementInProgress == null && reachedTile.isLand
                         && tileCanBeImproved(unit, reachedTile)
                 ) {
+                    if(unit.NumOfWokerUse==3) unit.destroy() //防止出错
                     debug("WorkerAutomation: ${unit.label()} -> start improving $reachedTile")
+                    unit.NumOfWokerUse +=1
                     return reachedTile.startWorkingOnImprovement(
                         chooseImprovement(unit, reachedTile)!!, civInfo, unit
                     )
@@ -161,27 +158,17 @@ class WorkerAutomation(
         }
 
         if (currentTile.isPillaged()) {
+            if(unit.NumOfWokerUse==3) unit.destroy() //防止出错
             debug("WorkerAutomation: ${unit.label()} -> repairs $currentTile")
             unit.NumOfWokerUse +=1
-            if (unit.civ.civName=="Greece"){
-                println(unit.name)
-                println("我在自动修理")
-                println(unit.NumOfWokerUse)
-                println(unit.civ.gameInfo.turns)
-            }
             UnitActionsFromUniques.getRepairAction(unit)?.action?.invoke()
             return
         }
 
         if (currentTile.improvementInProgress == null && tileCanBeImproved(unit, currentTile)) {
+            if(unit.NumOfWokerUse==3) unit.destroy() //防止出错
             debug("WorkerAutomation: ${unit.label()} -> start improving $currentTile")
             unit.NumOfWokerUse +=1
-            if (unit.civ.civName=="Greece"){
-                println(unit.name)
-                println("我在自动工作")
-                println(unit.NumOfWokerUse)
-                println(unit.civ.gameInfo.turns)
-            }
             return currentTile.startWorkingOnImprovement(chooseImprovement(unit, currentTile)!!, civInfo, unit)
         }
 
