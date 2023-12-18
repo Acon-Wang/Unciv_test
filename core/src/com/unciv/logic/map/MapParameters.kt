@@ -163,7 +163,7 @@ class MapParameters : IsPartOfGameInfoSerialization {
     var name = ""
     var type = MapType.pangaea
     var shape = MapShape.hexagonal
-    var mapSize = MapSizeNew(MapSize.Medium)
+    var mapSize = MapSizeNew(MapSize.Small)
     var mapResources = MapResources.default
     var noRuins = false
     var noNaturalWonders = false

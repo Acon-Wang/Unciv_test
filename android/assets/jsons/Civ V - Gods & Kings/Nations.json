@@ -100,104 +100,104 @@
         "spyNames": ["Li", "Chen", "Zhang", "Liu", "Yang", "Huang", "Zhao", "Wu", "Zhou", "Sun"]
 
     },
-    {
-        "name": "the Shu Kingdom",
-        "leaderName": "Liu Bei",
-        "adjective": ["the Shu Kingdom"],
-        "preferredVictoryType": "Scientific",
-
-        "startIntroPart1": "",
-        "startIntroPart2": "",
-
-        "declaringWar": "You won't ever be able to bother me again. Go meet Yama Shu.",
-        "attacked": "Fool! I will disembowel you all!",
-        "defeated": "You have proven to be a cunning and competent adversary. I congratulate you on your victory.",
-        "introduction": "Greetings, I am Liu Bei. Shu desires peace and development. You leave us alone, we'll leave you alone.",
-        "neutralHello": "How are you today?",
-        "hateHello": "Oh. It's you?",
-        "tradeRequest": "My friend, do you think you can accept this request?",
-
-        "outerColor": [227, 23, 18],
-        "innerColor": [255,255,255],
-
-        "favoredReligion": "Taoism",
-        "uniqueName": "Art of War",
-        "uniques": ["Great General provides double combat bonus", "[Great General] is earned [50]% faster"],
-//        "cities": ["Beijing","Shanghai","Guangzhou","Nanjing","Xian","Chengdu","Hangzhou","Tianjin","Macau","Shandong",
-//            "Kaifeng","Ningbo","Baoding","Yangzhou","Harbin","Chongqing","Luoyang","Kunming","Taipei","Shenyang",
-//            "Taiyuan","Tainan","Dalian","Lijiang","Wuxi","Suzhou","Maoming","Shaoguan","Yangjiang","Heyuan","Huangshi",
-//            "Yichang","Yingtian","Xinyu","Xinzheng","Handan","Dunhuang","Gaoyu","Nantong","Weifang","Xikang"],
-        "cities":["chengdu","hangzhong","badong","jingzhou","wudu","yingping","jianning","zhuti","yongchang","yunnan","yongan"],
-        "spyNames": ["Li", "Chen", "Zhang", "Liu", "Yang", "Huang", "Zhao", "Wu", "Zhou", "Sun"]
-
-    },
-    {
-        "name": "the Wu Kingdom",
-        "leaderName": "Sun Quan",
-        "adjective": ["the Wu Kingdom"],
-        "startBias": ["Coast"],
-        "preferredVictoryType": "Scientific",
-
-        "startIntroPart1": "",
-        "startIntroPart2": "",
-
-        "declaringWar": "Jip-hyun-jun (Hall of Worthies) will no longer tolerate your irksome behavior. We will liberate the citizens under your oppression even with force, and enlighten them!",
-        "attacked": "Foolish, miserable wretch! You will be crushed by this country's magnificent scientific power!",
-        "defeated": "Now the question is who will protect my people. A dark age has come.",
-        "introduction": "Welcome to the palace of Wu, stranger. I am Sun Quan, who looks after his great people.",
-
-        "neutralHello": "Hello.",
-        "hateHello": "Oh, it's you",
-        "tradeRequest": "We have many things to discuss and have much to benefit from each other.",
-//        "outerColor": [27,33,96],
-//        "innerColor": [255,0,0],
-        "outerColor": [9, 112, 84],
-        "innerColor": [255,255,255],
-
-        "favoredReligion": "Confucianism",
-        "uniqueName": "Scholars of the Jade Hall",
-        "uniques": ["[+2 Science] from every specialist [in all cities]", "[+2 Science] from every [Great Improvement]","Receive a tech boost when scientific buildings/wonders are built in capital"],
-//        "cities": ["Seoul","Busan","Jeonju","Daegu","Pyongyang","Kaesong","Suwon","Gwangju","Gangneung","Hamhung","Wonju","Ulsan",
-//            "Changwon","Andong","Gongju","Haeju","Cheongju","Mokpo","Dongducheon","Geoje","Suncheon","Jinju","Sangju",
-//            "Rason","Gyeongju","Chungju","Sacheon","Gimje","Anju"],
-        "cities": ["jianye","wuchang","jiangxia","yangzhou","changsha","poyang","lingling","jiaozhi","guiyang","lujiang"],
-        "spyNames": ["Kim", "Park", "Han", "Na", "Kong", "Yu", "Ahn", "Da", "Eun"]
-    },
-    {
-        "name": "the Wei Kingdom",
-        "leaderName": "Cao Cao",
-        "adjective": ["the Wei Kingdom"],
-        "startBias": ["Jungle"],
-        "preferredVictoryType": "Cultural",
-
-        "startIntroPart1": "",
-        "startIntroPart2": "",
-
-        "declaringWar": "I have tried all other avenues, but yet you persist in this madness. I hope, for your sake, your end is swift.",
-        "attacked": "It is silence that allows evil to triumph. We will not stand mute and allow you to continue on this mad quest unchecked.",
-        "defeated": "God and history will remember your actions this day. I hope you are ready for your impending judgment.",
-        "introduction": "Welcome to our beautiful country. I am Cao Cao, master of the State of Wei.",
-        "tradeRequest": "I request that you consider this offer between our two peoples. I believe it will do us both good.",
-
-        "neutralHello": "Welcome.",
-
-        "hateHello": "What do you want?",
-
-//        "outerColor": [18, 66, 22],
-//        "innerColor": [255, 56, 56],
-        "outerColor": [255, 215, 0],
-        "innerColor": [255,255,255],
-
-        "favoredReligion": "Christianity",
-        "uniqueName": "Spirit of Adwa",
-        "uniques": ["[+20]% Strength <when fighting units from a Civilization with more Cities than you>"],
-//        "cities": ["Addis Ababa","Harar","Adwa","Lalibela","Gondar","Axum","Dire Dawa","Bahir Dar","Adama",
-//            "Mek'ele","Awasa","Jimma","Jijiga","Dessie","Debre Berhan","Shashamane","Debre Zeyit","Sodo","Hosaena",
-//            "Nekemte","Asella","Dila","Adigrat","Debre Markos","Kombolcha","Debre Tabor","Sebeta",
-//            "Shire","Ambo","Negele Arsi","Gambela","Ziway","Weldiya"],
-        "cities":["luoyang","xiangyang","changan","hefei","hongnong","dongjun","yecheng","pengcheng","guangling","tianshui","zhangye","yanmen","wancheng","shanggu"],
-        "spyNames": ["Mulu Ken", "Wendimu", "Li'ol", "Demeke", "Mulu Alem", "Abebech", "Zema", "Mihret", "Kebedech", "Alemnesh"]
-    },
+//    {
+//        "name": "the Shu Kingdom",
+//        "leaderName": "Liu Bei",
+//        "adjective": ["the Shu Kingdom"],
+//        "preferredVictoryType": "Scientific",
+//
+//        "startIntroPart1": "",
+//        "startIntroPart2": "",
+//
+//        "declaringWar": "You won't ever be able to bother me again. Go meet Yama Shu.",
+//        "attacked": "Fool! I will disembowel you all!",
+//        "defeated": "You have proven to be a cunning and competent adversary. I congratulate you on your victory.",
+//        "introduction": "Greetings, I am Liu Bei. Shu desires peace and development. You leave us alone, we'll leave you alone.",
+//        "neutralHello": "How are you today?",
+//        "hateHello": "Oh. It's you?",
+//        "tradeRequest": "My friend, do you think you can accept this request?",
+//
+//        "outerColor": [227, 23, 18],
+//        "innerColor": [255,255,255],
+//
+//        "favoredReligion": "Taoism",
+//        "uniqueName": "Art of War",
+//        "uniques": ["Great General provides double combat bonus", "[Great General] is earned [50]% faster"],
+////        "cities": ["Beijing","Shanghai","Guangzhou","Nanjing","Xian","Chengdu","Hangzhou","Tianjin","Macau","Shandong",
+////            "Kaifeng","Ningbo","Baoding","Yangzhou","Harbin","Chongqing","Luoyang","Kunming","Taipei","Shenyang",
+////            "Taiyuan","Tainan","Dalian","Lijiang","Wuxi","Suzhou","Maoming","Shaoguan","Yangjiang","Heyuan","Huangshi",
+////            "Yichang","Yingtian","Xinyu","Xinzheng","Handan","Dunhuang","Gaoyu","Nantong","Weifang","Xikang"],
+//        "cities":["chengdu","hangzhong","badong","jingzhou","wudu","yingping","jianning","zhuti","yongchang","yunnan","yongan"],
+//        "spyNames": ["Li", "Chen", "Zhang", "Liu", "Yang", "Huang", "Zhao", "Wu", "Zhou", "Sun"]
+//
+//    },
+//    {
+//        "name": "the Wu Kingdom",
+//        "leaderName": "Sun Quan",
+//        "adjective": ["the Wu Kingdom"],
+//        "startBias": ["Coast"],
+//        "preferredVictoryType": "Scientific",
+//
+//        "startIntroPart1": "",
+//        "startIntroPart2": "",
+//
+//        "declaringWar": "Jip-hyun-jun (Hall of Worthies) will no longer tolerate your irksome behavior. We will liberate the citizens under your oppression even with force, and enlighten them!",
+//        "attacked": "Foolish, miserable wretch! You will be crushed by this country's magnificent scientific power!",
+//        "defeated": "Now the question is who will protect my people. A dark age has come.",
+//        "introduction": "Welcome to the palace of Wu, stranger. I am Sun Quan, who looks after his great people.",
+//
+//        "neutralHello": "Hello.",
+//        "hateHello": "Oh, it's you",
+//        "tradeRequest": "We have many things to discuss and have much to benefit from each other.",
+////        "outerColor": [27,33,96],
+////        "innerColor": [255,0,0],
+//        "outerColor": [9, 112, 84],
+//        "innerColor": [255,255,255],
+//
+//        "favoredReligion": "Confucianism",
+//        "uniqueName": "Scholars of the Jade Hall",
+//        "uniques": ["[+2 Science] from every specialist [in all cities]", "[+2 Science] from every [Great Improvement]","Receive a tech boost when scientific buildings/wonders are built in capital"],
+////        "cities": ["Seoul","Busan","Jeonju","Daegu","Pyongyang","Kaesong","Suwon","Gwangju","Gangneung","Hamhung","Wonju","Ulsan",
+////            "Changwon","Andong","Gongju","Haeju","Cheongju","Mokpo","Dongducheon","Geoje","Suncheon","Jinju","Sangju",
+////            "Rason","Gyeongju","Chungju","Sacheon","Gimje","Anju"],
+//        "cities": ["jianye","wuchang","jiangxia","yangzhou","changsha","poyang","lingling","jiaozhi","guiyang","lujiang"],
+//        "spyNames": ["Kim", "Park", "Han", "Na", "Kong", "Yu", "Ahn", "Da", "Eun"]
+//    },
+//    {
+//        "name": "the Wei Kingdom",
+//        "leaderName": "Cao Cao",
+//        "adjective": ["the Wei Kingdom"],
+//        "startBias": ["Jungle"],
+//        "preferredVictoryType": "Cultural",
+//
+//        "startIntroPart1": "",
+//        "startIntroPart2": "",
+//
+//        "declaringWar": "I have tried all other avenues, but yet you persist in this madness. I hope, for your sake, your end is swift.",
+//        "attacked": "It is silence that allows evil to triumph. We will not stand mute and allow you to continue on this mad quest unchecked.",
+//        "defeated": "God and history will remember your actions this day. I hope you are ready for your impending judgment.",
+//        "introduction": "Welcome to our beautiful country. I am Cao Cao, master of the State of Wei.",
+//        "tradeRequest": "I request that you consider this offer between our two peoples. I believe it will do us both good.",
+//
+//        "neutralHello": "Welcome.",
+//
+//        "hateHello": "What do you want?",
+//
+////        "outerColor": [18, 66, 22],
+////        "innerColor": [255, 56, 56],
+//        "outerColor": [255, 215, 0],
+//        "innerColor": [255,255,255],
+//
+//        "favoredReligion": "Christianity",
+//        "uniqueName": "Spirit of Adwa",
+//        "uniques": ["[+20]% Strength <when fighting units from a Civilization with more Cities than you>"],
+////        "cities": ["Addis Ababa","Harar","Adwa","Lalibela","Gondar","Axum","Dire Dawa","Bahir Dar","Adama",
+////            "Mek'ele","Awasa","Jimma","Jijiga","Dessie","Debre Berhan","Shashamane","Debre Zeyit","Sodo","Hosaena",
+////            "Nekemte","Asella","Dila","Adigrat","Debre Markos","Kombolcha","Debre Tabor","Sebeta",
+////            "Shire","Ambo","Negele Arsi","Gambela","Ziway","Weldiya"],
+//        "cities":["luoyang","xiangyang","changan","hefei","hongnong","dongjun","yecheng","pengcheng","guangling","tianshui","zhangye","yanmen","wancheng","shanggu"],
+//        "spyNames": ["Mulu Ken", "Wendimu", "Li'ol", "Demeke", "Mulu Alem", "Abebech", "Zema", "Mihret", "Kebedech", "Alemnesh"]
+//    },
 	{
 		"name": "Egypt",
 		"leaderName": "Ramesses II",

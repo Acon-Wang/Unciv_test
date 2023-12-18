@@ -247,8 +247,9 @@ class GameSettingsMultiplayer {
     var turnCheckerPersistentNotificationEnabled = true
     var turnCheckerDelay: Duration = Duration.ofMinutes(5)
     var statusButtonInSinglePlayer = false
-    var currentGameRefreshDelay: Duration = Duration.ofSeconds(10)
-    var allGameRefreshDelay: Duration = Duration.ofMinutes(5)
+    var currentGameRefreshDelay: Duration = Duration.ofSeconds(3)//10
+//     var allGameRefreshDelay: Duration = Duration.ofMinutes(5)
+    var allGameRefreshDelay: Duration = Duration.ofSeconds(15)
     var currentGameTurnNotificationSound: UncivSound = UncivSound.Silent
     var otherGameTurnNotificationSound: UncivSound = UncivSound.Silent
     var hideDropboxWarning = false

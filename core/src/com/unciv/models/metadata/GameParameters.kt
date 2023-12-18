@@ -40,11 +40,11 @@ class GameParameters : IsPartOfGameInfoSerialization { // Default values are the
     var noStartBias = false
 
     var victoryTypes: ArrayList<String> = arrayListOf()
-    var startingEra = "Ancient era"
+    var startingEra = "Medieval era"
 
-    var isOnlineMultiplayer = false
+    var isOnlineMultiplayer = true
     var multiplayerServerUrl: String? = null
-    var anyoneCanSpectate = true
+    var anyoneCanSpectate = false
     var baseRuleset: String = BaseRuleset.Civ_V_GnK.fullName
     var mods = LinkedHashSet<String>()
 
