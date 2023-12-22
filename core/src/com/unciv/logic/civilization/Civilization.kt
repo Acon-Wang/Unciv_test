@@ -153,7 +153,7 @@ class Civilization : IsPartOfGameInfoSerialization {
     val popupAlerts = ArrayList<PopupAlert>()
     private var allyCivName: String? = null
     var naturalWonders = ArrayList<String>()
-
+    var resourcehash = HashMap<String, Int>()
     /* AI section */
     val tacticalAI = TacticalAI()
 
@@ -289,6 +289,7 @@ class Civilization : IsPartOfGameInfoSerialization {
         toReturn.hasMovedAutomatedUnits = hasMovedAutomatedUnits
         toReturn.statsHistory = statsHistory.clone()
         toReturn.resourceStockpiles = resourceStockpiles.clone()
+        toReturn.resourcehash = resourcehash
         return toReturn
     }
 
@@ -421,6 +422,7 @@ class Civilization : IsPartOfGameInfoSerialization {
                 hashMap[entry.resource.name] = entry.amount
         for ((key, value) in resourceStockpiles)
             hashMap[key] = value
+        resourcehash = hashMap
         return hashMap
     }
 
