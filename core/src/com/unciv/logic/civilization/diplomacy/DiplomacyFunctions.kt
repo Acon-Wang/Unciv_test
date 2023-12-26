@@ -117,6 +117,7 @@ class DiplomacyFunctions(val civInfo: Civilization){
         return true
     }
 
+
     /**
      * 判断是否可以不用花费进行研究协定
      */
@@ -135,6 +136,52 @@ class DiplomacyFunctions(val civInfo: Civilization){
         val cost = getResearchAgreementCost(otherCiv)
         return canSignResearchAgreementNoCostWith(otherCiv)
             && civInfo.gold >= cost && otherCiv.gold >= cost
+    }
+
+    fun canSignResearchAgreementsWith_easy(otherCiv: Civilization): Pair<Boolean,List<String>> {
+        val cost = getResearchAgreementCost(otherCiv)
+        var Reason_consent = mutableListOf<String>()
+        var Reason_reject = mutableListOf<String>()
+        var flag = 0
+        if (!civInfo.isMajorCiv()) {
+            flag++
+            Reason_reject.add("We're not a major city")
+        }
+        if (!civInfo.hasUnique(UniqueType.EnablesResearchAgreements)){
+            flag++
+            Reason_reject.add("We didn't study the properties")
+        }
+        if (civInfo.gameInfo.ruleset.technologies.values
+                .none { civInfo.tech.canBeResearched(it.name) && !civInfo.tech.isResearched(it.name) }) {
+            flag++
+            Reason_reject.add("We don't have anything to study")
+        }
+
+        if (!otherCiv.isMajorCiv()) {
+            flag++
+            Reason_reject.add("You're not a major city")
+        }
+        if (!otherCiv.hasUnique(UniqueType.EnablesResearchAgreements)) {
+            flag++
+            Reason_reject.add("You didn't study the properties")
+        }
+        if (otherCiv.gameInfo.ruleset.technologies.values
+                .none { otherCiv.tech.canBeResearched(it.name) && !otherCiv.tech.isResearched(it.name) }) {
+            flag++
+            Reason_reject.add("Your don't have anything to study")
+        }
+        if (civInfo.gold<cost){
+            flag++
+            Reason_reject.add("We can't afford to pay")
+        }
+        if (otherCiv.gold<cost){
+            flag++
+            Reason_reject.add("You can't afford to pay")
+        }
+        Reason_consent.add("We can initiate research agreements and have things to study")
+        Reason_consent.add("We can all pay for it")
+        if (flag>0) return Pair(false,Reason_reject)
+        else return Pair(true,Reason_consent)
     }
 
     /**

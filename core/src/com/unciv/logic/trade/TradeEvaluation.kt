@@ -62,6 +62,9 @@ class TradeEvaluation {
     fun isTradeAcceptable(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Boolean {
         return getTradeAcceptability(trade, evaluator, tradePartner) >= 0
     }
+    fun isTradeAcceptable_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean,List<String>> {
+        return getTradeAcceptability_easy(trade, evaluator, tradePartner)
+    }
 
     fun getTradeAcceptability(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Int {
         val citiesAskedToSurrender = trade.ourOffers.filter { it.type == TradeType.City }.count()
@@ -92,6 +95,47 @@ class TradeEvaluation {
         }
 
         return sumOfTheirOffers - sumOfOurOffers
+    }
+    fun getTradeAcceptability_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean,List<String>> {
+        var Reason_consent = mutableListOf<String>()
+        var Reason_reject = mutableListOf<String>()
+        val citiesAskedToSurrender = trade.ourOffers.filter { it.type == TradeType.City }.count()
+        val maxCitiesToSurrender = ceil(evaluator.cities.size.toFloat() / 5).toInt()
+        if (citiesAskedToSurrender > maxCitiesToSurrender) {
+            Reason_reject.add("There are too many cities to trade")
+        }
+
+        val sumOfTheirOffers = trade.theirOffers.asSequence()
+            .filter { it.type != TradeType.Treaty } // since treaties should only be evaluated once for 2 sides
+            .map { evaluateBuyCostWithInflation(it, evaluator, tradePartner) }.sum()
+
+        var sumOfOurOffers = trade.ourOffers.sumOf { evaluateSellCostWithInflation(it, evaluator, tradePartner) }
+
+        val relationshipLevel = evaluator.getDiplomacyManager(tradePartner).relationshipIgnoreAfraid()
+        // If we're making a peace treaty, don't try to up the bargain for people you don't like.
+        // Leads to spartan behaviour where you demand more, the more you hate the enemy...unhelpful
+        if (trade.ourOffers.none { it.name == Constants.peaceTreaty || it.name == Constants.researchAgreement}) {
+            if (relationshipLevel == RelationshipLevel.Enemy) {
+                Reason_reject.add("We have a hostile relationship")
+                Reason_reject.add("The value of the resources we provide diminishes in your eyes")
+                sumOfOurOffers = (sumOfOurOffers * 1.5).toInt()
+            }
+            else if (relationshipLevel == RelationshipLevel.Unforgivable) {
+                Reason_reject.add("We have an unforgivable relationship")
+                Reason_reject.add("The value of the resources we provide is greatly diminished in your eyes")
+                sumOfOurOffers *= 2
+            }
+        }
+        if (trade.ourOffers.firstOrNull { it.name == Constants.defensivePact } != null) {
+            if (relationshipLevel == RelationshipLevel.Ally) {
+                //todo: Add more in depth evaluation here
+            } else {
+                Reason_reject.add("We propose a defense treaty, but it's not close")
+            }
+        }
+        Reason_consent.add("We are satisfied with the value they offer")
+        if (sumOfTheirOffers - sumOfOurOffers>0)return Pair(true,Reason_consent)
+        else return Pair(false,Reason_reject)
     }
 
     fun evaluateBuyCostWithInflation(offer: TradeOffer, civInfo: Civilization, tradePartner: Civilization): Int {

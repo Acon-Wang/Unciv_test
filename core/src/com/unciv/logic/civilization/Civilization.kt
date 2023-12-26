@@ -165,7 +165,7 @@ class Civilization : IsPartOfGameInfoSerialization {
     }
 
     /** for trades here, ourOffers is the current civ's offers, and theirOffers is what the requesting civ offers  */
-    val tradeRequests = ArrayList<TradeRequest>()
+    open val tradeRequests = ArrayList<TradeRequest>()
 
     /** See DiplomacyManager.flagsCountdown for why this does not map Enums to ints */
     var flagsCountdown = HashMap<String, Int>()
