@@ -35,7 +35,7 @@ object NextTurnAutomation {
         if (civInfo.isBarbarian()) return BarbarianAutomation(civInfo).automate()
 
         respondToPopupAlerts(civInfo)
-        TradeAutomation.respondToTradeRequests(civInfo)
+        TradeAutomation.respondToTradeRequests(civInfo)//
 
         if (civInfo.isMajorCiv()) {
             if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
@@ -44,7 +44,7 @@ object NextTurnAutomation {
                 DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)
             }
             if (civInfo.gameInfo.isReligionEnabled()) {
-                ReligionAutomation.spendFaithOnReligion(civInfo)
+                ReligionAutomation.spendFaithOnReligion(civInfo)//
             }
             DiplomacyAutomation.offerOpenBorders(civInfo)
             DiplomacyAutomation.offerResearchAgreement(civInfo)

@@ -1,6 +1,8 @@
 package com.unciv.logic.automation.civilization
 
 import com.unciv.Constants
+import com.unciv.ContentData
+import com.unciv.json.json
 import com.unciv.logic.automation.Automation
 import com.unciv.logic.automation.ThreatLevel
 import com.unciv.logic.battle.BattleDamage
@@ -12,6 +14,7 @@ import com.unciv.logic.civilization.PopupAlert
 import com.unciv.logic.civilization.diplomacy.DiplomacyFlags
 import com.unciv.logic.civilization.diplomacy.DiplomaticStatus
 import com.unciv.logic.civilization.diplomacy.RelationshipLevel
+import com.unciv.logic.files.UncivFiles
 import com.unciv.logic.map.BFS
 import com.unciv.logic.map.tile.Tile
 import com.unciv.logic.trade.TradeEvaluation
@@ -25,6 +28,18 @@ import com.unciv.models.ruleset.unique.UniqueType
 import com.unciv.models.ruleset.unit.BaseUnit
 import com.unciv.models.translations.tr
 import com.unciv.ui.screens.victoryscreen.RankingType
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
+
 object DiplomacyAutomation {
 
     /**
@@ -35,10 +50,21 @@ object DiplomacyAutomation {
             .filter { civInfo.diplomacyFunctions.canSignDeclarationOfFriendshipWith(it)
                 && !civInfo.getDiplomacyManager(it).hasFlag(DiplomacyFlags.DeclinedDeclarationOfFriendship)}
             .sortedByDescending { it.getDiplomacyManager(civInfo).relationshipLevel() }.toList()
+        val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
         for (otherCiv in civsThatWeCanDeclareFriendshipWith) {
             // Default setting is 2, this will be changed according to different civ.
             //random随机符合
-            if ((1..10).random() <= 2 && wantsToSignDeclarationOfFrienship(civInfo, otherCiv)) {
+            val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
+            val jsonString = Json.encodeToString(contentData)
+            val postRequestResult = sendPostRequest("http://127.0.0.1:2337/wantsToSignDeclarationOfFrienship", jsonString)
+            val jsonObject = Json.parseToJsonElement(postRequestResult)
+            val resultElement = jsonObject.jsonObject["result"]
+            val resultValue: Boolean? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+                resultElement.contentOrNull!!.toBoolean() // 尝试将内容转换为布尔值
+            } else {
+                null // 处理 "result" 不是布尔值或字段不存在的情况
+            }
+            if ((1..10).random() <= 2 && resultValue == true) {
                 otherCiv.popupAlerts.add(PopupAlert(AlertType.DeclarationOfFriendship, civInfo.civName))
             }
         }
@@ -180,10 +206,22 @@ object DiplomacyAutomation {
                 && !civInfo.getDiplomacyManager(it).hasOpenBorders
                 && !civInfo.getDiplomacyManager(it).hasFlag(DiplomacyFlags.DeclinedOpenBorders) }
             .sortedByDescending { it.getDiplomacyManager(civInfo).relationshipLevel() }.toList()
+        val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
         for (otherCiv in civsThatWeCanOpenBordersWith) {
             // Default setting is 3, this will be changed according to different civ.
             //random随机符合
-            if ((1..10).random() <= 3 && wantsToOpenBorders(civInfo, otherCiv)) {
+            val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
+            val jsonString = Json.encodeToString(contentData)
+            val postRequestResult = sendPostRequest("http://127.0.0.1:2337/wantsToOpenBorders", jsonString)
+            val jsonObject = Json.parseToJsonElement(postRequestResult)
+            val resultElement = jsonObject.jsonObject["result"]
+            val resultValue: Boolean? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+                resultElement.contentOrNull!!.toBoolean() // 尝试将内容转换为布尔值
+            } else {
+                null // 处理 "result" 不是布尔值或字段不存在的情况
+            }
+            if ((1..10).random() <= 3 && resultValue==true) {
+
                 val tradeLogic = TradeLogic(civInfo, otherCiv)
                 tradeLogic.currentTrade.ourOffers.add(TradeOffer(Constants.openBorders, TradeType.Agreement))
                 tradeLogic.currentTrade.theirOffers.add(TradeOffer(Constants.openBorders, TradeType.Agreement))
@@ -234,11 +272,11 @@ object DiplomacyAutomation {
      */
     internal fun offerResearchAgreement(civInfo: Civilization) {
         if (!civInfo.diplomacyFunctions.canSignResearchAgreement()) return // don't waste your time
-
+        val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
         val canSignResearchAgreementCiv = civInfo.getKnownCivs()
             .filter {
-                civInfo.diplomacyFunctions.canSignResearchAgreementsWith(it)
-                    && !civInfo.getDiplomacyManager(it).hasFlag(DiplomacyFlags.DeclinedResearchAgreement)
+//                 civInfo.diplomacyFunctions.canSignResearchAgreementsWith(it)
+                   sendcanSignResearchAgreementsWith(content,civInfo,it) == true && !civInfo.getDiplomacyManager(it).hasFlag(DiplomacyFlags.DeclinedResearchAgreement)
             }
             .sortedByDescending { it.stats.statsForNextTurn.science }
 
@@ -266,10 +304,20 @@ object DiplomacyAutomation {
                     && !civInfo.getDiplomacyManager(it).hasFlag(DiplomacyFlags.DeclinedDefensivePact)
                     && civInfo.getDiplomacyManager(it).relationshipIgnoreAfraid() == RelationshipLevel.Ally
             }
-
+        val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
         for (otherCiv in canSignDefensivePactCiv) {
             // Default setting is 3, this will be changed according to different civ.
-            if ((1..10).random() <= 3 && wantsToSignDefensivePact(civInfo, otherCiv)) {
+            val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
+            val jsonString = Json.encodeToString(contentData)
+            val postRequestResult = sendPostRequest("http://127.0.0.1:2337/wantsToSignDefensivePact", jsonString)
+            val jsonObject = Json.parseToJsonElement(postRequestResult)
+            val resultElement = jsonObject.jsonObject["result"]
+            val resultValue: Boolean? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+                resultElement.contentOrNull!!.toBoolean() // 尝试将内容转换为布尔值
+            } else {
+                null // 处理 "result" 不是布尔值或字段不存在的情况
+            }
+            if ((1..10).random() <= 3 && resultValue == true) {
                 //todo: Add more in depth evaluation here
                 val tradeLogic = TradeLogic(civInfo, otherCiv)
                 tradeLogic.currentTrade.ourOffers.add(TradeOffer(Constants.defensivePact, TradeType.Treaty))
@@ -407,9 +455,23 @@ object DiplomacyAutomation {
         if (enemyCivs.none()) return
 
         val minMotivationToAttack = 20
-        val civWithBestMotivationToAttack = enemyCivs
-            .map { Pair(it, hasAtLeastMotivationToAttack(civInfo, it, minMotivationToAttack)) }
-            .maxByOrNull { it.second }!!
+        val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
+//         val civWithBestMotivationToAttack = enemyCivs
+//             .map { Pair(it, hasAtLeastMotivationToAttack(civInfo, it, minMotivationToAttack)) }
+//             .maxByOrNull { it.second }!!
+        var max_name = ""
+        var max_score = 0
+        for ( city in enemyCivs){
+            val contentData = ContentData_three(content, civInfo.civName,city.civName)
+            val jsonString = Json.encodeToString(contentData)
+            val postRequestResult= sendPostRequest("http://127.0.0.1:2337/hasAtLeastMotivationToAttackScore",jsonString)
+            val score = postRequestResult.toInt()
+            if (score>max_score) {
+                max_score = score
+                max_name = city.civName
+            }
+        }
+        val civWithBestMotivationToAttack = Pair(max_name,max_score)
 
         if (civWithBestMotivationToAttack.second >= minMotivationToAttack)
             civInfo.getDiplomacyManager(civWithBestMotivationToAttack.first).declareWar()
@@ -417,7 +479,7 @@ object DiplomacyAutomation {
 
     /** Will return the motivation to attack, but might short circuit if the value is guaranteed to
      * be lower than `atLeast`. So any values below `atLeast` should not be used for comparison. */
-    private fun hasAtLeastMotivationToAttack(civInfo: Civilization, otherCiv: Civilization, atLeast: Int): Int {
+     fun hasAtLeastMotivationToAttack(civInfo: Civilization, otherCiv: Civilization, atLeast: Int): Int {
         val closestCities = NextTurnAutomation.getClosestCities(civInfo, otherCiv) ?: return 0
         val baseForce = 30f
 
@@ -652,10 +714,10 @@ object DiplomacyAutomation {
 
         if (otherCiv.isCityState()) {
             modifierMap["City-state"] = -20
-            Reason_reject.add("They're just city-states.")
+            Reason_reject.add("They're just city-states")
             if (otherCiv.getAllyCiv() == civInfo.civName){
                 modifierMap["Allied City-state"] = -20 // There had better be a DAMN good reason
-                Reason_reject.add("It's a confederate city.")
+                Reason_reject.add("It's a confederate city")
             }
 
         }
@@ -722,7 +784,14 @@ object DiplomacyAutomation {
             .filter { it.tradeRequests.none { tradeRequest -> tradeRequest.requestingCiv == civInfo.civName && tradeRequest.trade.isPeaceTreaty() } }
 
         for (enemy in enemiesCiv) {
-            if(hasAtLeastMotivationToAttack(civInfo, enemy, 10) >= 10) {
+
+            val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
+            val contentData = ContentData_three(content, civInfo.civName,enemy.civName)
+            val jsonString = Json.encodeToString(contentData)
+            val postRequestResult= sendPostRequest("http://127.0.0.1:2337/offerPeaceTreaty",jsonString)
+            val score = postRequestResult.toInt()
+//             if(hasAtLeastMotivationToAttack(civInfo, enemy, 10) >= 10) {
+            if (score>=10){
                 // We can still fight. Refuse peace.
                 continue
             }
@@ -748,4 +817,46 @@ object DiplomacyAutomation {
         }
     }
 
+}
+// 发送 POST 请求
+fun sendPostRequest(url: String, postData: String): String {
+    val url = URL(url)
+    val connection = url.openConnection() as HttpURLConnection
+    connection.requestMethod = "POST"
+    connection.setRequestProperty("Content-Type", "application/json")
+    connection.doOutput = true
+
+    val wr = OutputStreamWriter(connection.outputStream)
+    wr.write(postData)
+    wr.flush()
+
+    val bufferedReader = BufferedReader(InputStreamReader(connection.inputStream))
+    val response = StringBuffer()
+
+    var inputLine: String?
+    while (bufferedReader.readLine().also { inputLine = it } != null) {
+        response.append(inputLine)
+    }
+    bufferedReader.close()
+
+    return response.toString()
+}
+@Serializable
+data class ContentData_three(val gameinfo: String, val civ1: String, val civ2: String)
+@Serializable
+data class ContentData_two(val gameinfo: String, val civ1: String)
+
+fun sendcanSignResearchAgreementsWith(content:String,civInfo1: Civilization,civInfo2: Civilization): Boolean? {
+
+        val contentData = ContentData_three(content, civInfo1.civName,civInfo2.civName)
+        val jsonString = Json.encodeToString(contentData)
+        val postRequestResult= sendPostRequest("http://127.0.0.1:2337/canSignResearchAgreementsWith",jsonString)
+        val jsonObject = Json.parseToJsonElement(postRequestResult)
+        val resultElement = jsonObject.jsonObject["result"]
+        val resultValue: Boolean? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+            resultElement.contentOrNull!!.toBoolean() // 尝试将内容转换为布尔值
+        } else {
+            null // 处理 "result" 不是布尔值或字段不存在的情况
+        }
+        return resultValue
 }

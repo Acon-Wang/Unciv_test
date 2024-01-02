@@ -6,6 +6,7 @@ import com.unciv.logic.civilization.NotificationIcon
 import com.unciv.logic.civilization.PlayerType
 import com.unciv.logic.civilization.diplomacy.DiplomacyFlags
 import com.unciv.logic.civilization.diplomacy.RelationshipLevel
+import com.unciv.logic.files.UncivFiles
 import com.unciv.logic.trade.Trade
 import com.unciv.logic.trade.TradeEvaluation
 import com.unciv.logic.trade.TradeLogic
@@ -24,6 +25,8 @@ object TradeAutomation {
                 continue
 
             val tradeLogic = TradeLogic(civInfo, otherCiv)
+            val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
+//             val contentData = ContentData_three(content, civInfo1.civName,civInfo2.civName)
             tradeLogic.currentTrade.set(tradeRequest.trade)
             /** We need to remove this here, so that if the trade is accepted, the updateDetailedCivResources()
              * in tradeLogic.acceptTrade() will not consider *both* the trade *and the trade offer as decreasing the

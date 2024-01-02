@@ -15,6 +15,7 @@ import com.unciv.logic.GameInfoPreview
 import com.unciv.logic.GameInfoSerializationVersion
 import com.unciv.logic.HasGameInfoSerializationVersion
 import com.unciv.logic.UncivShowableException
+import com.unciv.logic.files.UncivFiles.Companion.saveZipped
 import com.unciv.models.metadata.GameSettings
 import com.unciv.models.metadata.doMigrations
 import com.unciv.models.metadata.isMigrationNecessary
@@ -491,3 +492,52 @@ class IncompatibleGameInfoVersionException(
         "Please update Unciv to this version or later and try again.",
     cause
 ), HasGameInfoSerializationVersion
+
+class UncivFilesNoGdx(
+    /**
+     * This is necessary because the Android turn check background worker does not hold any reference to the actual [com.badlogic.gdx.Application],
+     * which is normally responsible for keeping the [Gdx] static variables from being garbage collected.
+     */
+    private val files: String = ""
+) {
+    //endregion
+    //region Helpers
+    fun gameInfoFromString_easy(gameData: String): GameInfo {
+
+        RulesetCache.loadRulesets(true,false)
+        val unzippedJson = try {
+            Gzip.unzip(gameData.trim())
+        } catch (_: Exception) {
+            gameData.trim()
+        }
+        val gameInfo = try {
+            json().fromJson(GameInfo::class.java, unzippedJson)
+        } catch (ex: Exception) {
+            Log.error("Exception while deserializing GameInfo JSON", ex)
+            val onlyVersion = json().fromJson(GameInfoSerializationVersion::class.java, unzippedJson)
+            throw IncompatibleGameInfoVersionException(onlyVersion.version, ex)
+        } ?: throw UncivShowableException("The file data seems to be corrupted.")
+
+        if (gameInfo.version > GameInfo.CURRENT_COMPATIBILITY_VERSION) {
+            // this means there wasn't an immediate error while serializing, but this version will cause other errors later down the line
+            throw IncompatibleGameInfoVersionException(gameInfo.version)
+        }
+        gameInfo.setTransients()
+        return gameInfo
+    }
+
+    /** Returns gzipped serialization of [game], optionally gzipped ([forceZip] overrides [saveZipped]) */
+    fun gameInfoToString(game: GameInfo, forceZip:Boolean=false, updateChecksum:Boolean=false): String {
+        game.version = GameInfo.CURRENT_COMPATIBILITY_VERSION
+        if (updateChecksum) game.checksum = game.calculateChecksum()
+        val plainJson = json().toJson(game)
+        return if (forceZip) Gzip.zip(plainJson) else plainJson
+    }
+
+    /** Returns gzipped serialization of preview [game] */
+    fun gameInfoToString(game: GameInfoPreview): String {
+        return Gzip.zip(json().toJson(game))
+    }
+
+    // endregion
+}
