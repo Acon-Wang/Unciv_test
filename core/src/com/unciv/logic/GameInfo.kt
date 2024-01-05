@@ -706,7 +706,6 @@ class GameInfo : IsPartOfGameInfoSerialization, HasGameInfoSerializationVersion 
                 diplomacyManager.updateHasOpenBorders()
             }
         }
-
         tileMap.setTransients(ruleset)
         if (currentPlayer == "") currentPlayer =
             if (gameParameters.isOnlineMultiplayer) civilizations.first { it.isHuman() && !it.isSpectator() }.civName // For MP, spectator doesn't get a 'turn'

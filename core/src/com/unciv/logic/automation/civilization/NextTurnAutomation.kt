@@ -386,8 +386,25 @@ object NextTurnAutomation {
     private fun automateUnits(civInfo: Civilization) {
         val isAtWar = civInfo.isAtWar()
         val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
-        for (unit in sortedUnits) UnitAutomation.automateUnitMoves(unit)
+        var id = 1
+        for (unit in sortedUnits) {
+            UnitAutomation.automateUnitMoves_easy(unit,id)
+            id++
+        }
     }
+    fun getunits(civInfo: Civilization,id:Int):MapUnit?{
+        val isAtWar = civInfo.isAtWar()
+        val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
+        var count=1
+        for (unit in sortedUnits) {
+            if (count==id) return unit
+            count++
+        }
+        var mapUnit = MapUnit()
+        mapUnit.instanceName="None"
+        return mapUnit
+    }
+
     private fun automateUnits_modify(civInfo: Civilization,workerAuto:Boolean) {
         val isAtWar = civInfo.isAtWar()
         val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }

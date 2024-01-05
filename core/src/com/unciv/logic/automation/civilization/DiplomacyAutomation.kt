@@ -845,6 +845,8 @@ fun sendPostRequest(url: String, postData: String): String {
 data class ContentData_three(val gameinfo: String, val civ1: String, val civ2: String)
 @Serializable
 data class ContentData_two(val gameinfo: String, val civ1: String)
+@Serializable
+data class ContentData_unit(val gameinfo: String, val civ1: String,val id:String)
 
 fun sendcanSignResearchAgreementsWith(content:String,civInfo1: Civilization,civInfo2: Civilization): Boolean? {
 

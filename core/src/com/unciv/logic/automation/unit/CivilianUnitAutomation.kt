@@ -136,10 +136,11 @@ object CivilianUnitAutomation {
     }
     fun automateCivilianUnit_modify(unit: MapUnit,workerAuto:Boolean) {
 
-        if (unit.NumOfWokerUse==3){
+        if (unit.NumOfWokerUse >=3 && unit.wokeruseing <= 1 ){
             unit.destroy()
             return
         }
+        if (unit.wokeruseing>0) unit.wokeruseing -=1
         if (tryRunAwayIfNeccessary(unit)) return
 
         if (unit.currentTile.isCityCenter() && unit.currentTile.getCity()!!.isCapital()

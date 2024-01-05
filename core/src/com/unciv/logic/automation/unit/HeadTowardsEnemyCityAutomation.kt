@@ -1,20 +1,66 @@
 package com.unciv.logic.automation.unit
 
+import com.unciv.logic.automation.civilization.ContentData_three
+import com.unciv.logic.automation.civilization.ContentData_two
+import com.unciv.logic.automation.civilization.ContentData_unit
 import com.unciv.logic.automation.civilization.NextTurnAutomation
+import com.unciv.logic.automation.civilization.sendPostRequest
 import com.unciv.logic.battle.BattleDamage
 import com.unciv.logic.battle.CityCombatant
 import com.unciv.logic.battle.MapUnitCombatant
 import com.unciv.logic.city.City
+import com.unciv.logic.civilization.Civilization
+import com.unciv.logic.files.UncivFiles
 import com.unciv.logic.map.mapunit.MapUnit
 import com.unciv.logic.map.mapunit.movement.PathsToTilesWithinTurn
 import com.unciv.logic.map.tile.Tile
-
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.JsonPrimitive
 object HeadTowardsEnemyCityAutomation {
 
     /** @returns whether the unit has taken this action */
     /**
      * 尝试去敌人城市，只专注打一个敌人
      */
+    fun tryHeadTowardsEnemyCity_modify(unit: MapUnit,id:Int): Boolean {
+        if (unit.civ.cities.isEmpty()) return false
+
+        val content = UncivFiles.gameInfoToString(unit.civ.gameInfo,false,false)
+        val contentData = ContentData_unit(content, unit.civ.civName,id.toString())
+        val jsonString = Json.encodeToString(contentData)
+        val postRequestResult= sendPostRequest("http://127.0.0.1:2337/getEnemyCitiesByPriority",jsonString)
+//         val jsonObject = Json.parseToJsonElement(postRequestResult)
+//         val resultElement = jsonObject.jsonObject["result"]
+//         val resultValue: String? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+//             resultElement.contentOrNull // 获取内容作为字符串
+//         } else {
+//             null // 处理 "result" 不是字符串或字段不存在的情况
+//         }
+        if (postRequestResult ==null||postRequestResult=="None" )return false
+        val (x, y) = postRequestResult.split(",").map { it.toInt() }
+//         var flag = false
+//         var closestReachableEnemyCity = City()
+//         for (city in unit.civ.cities){
+//             if (city.name==resultValue) {
+//                 closestReachableEnemyCity = city
+//                 flag = true
+//             }
+//         }
+//         if (!flag) return false
+//         val closestReachableEnemyCity = getEnemyCities(unit)
+//             ?: return false // No enemy city reachable
+        val tile = unit.civ.gameInfo.tileMap.get(x,y)
+        return headTowardsEnemyCity(
+            unit,
+//             closestReachableEnemyCity.getCenterTile(),
+            tile,
+            // This should be cached after the `canReach` call above.
+            unit.movement.getShortestPath(tile)
+        )
+    }
     fun tryHeadTowardsEnemyCity(unit: MapUnit): Boolean {
         if (unit.civ.cities.isEmpty()) return false
 
@@ -23,6 +69,7 @@ object HeadTowardsEnemyCityAutomation {
             .firstOrNull { unit.movement.canReach(it.getCenterTile()) }
             ?: return false // No enemy city reachable
 
+
         return headTowardsEnemyCity(
             unit,
             closestReachableEnemyCity.getCenterTile(),
@@ -30,14 +77,22 @@ object HeadTowardsEnemyCityAutomation {
             unit.movement.getShortestPath(closestReachableEnemyCity.getCenterTile())
         )
     }
-
+    fun getEnemyCities(unit: MapUnit): String? {
+        if (unit.instanceName=="None"||unit.instanceName==null)return "None"
+        val city = getEnemyCitiesByPriority(unit).firstOrNull { unit.movement.canReach(it.getCenterTile()) }
+        if (city != null) {
+            val x = city.getCenterTile().position.x
+            val y= city.getCenterTile().position.y
+            return "x,y"
+        }
+        return "None"
+    }
     /**
      * 得到攻打敌人城市的优先级
      */
     private fun getEnemyCitiesByPriority(unit: MapUnit):Sequence<City>{
         val enemies = unit.civ.getKnownCivs()
             .filter { unit.civ.isAtWarWith(it) && it.cities.isNotEmpty() }
-
         val closestEnemyCity = enemies
             .mapNotNull { NextTurnAutomation.getClosestCities(unit.civ, it) }
             .minByOrNull { it.aerialDistance }?.city2
