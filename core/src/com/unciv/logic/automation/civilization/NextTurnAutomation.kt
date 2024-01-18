@@ -65,7 +65,7 @@ object NextTurnAutomation {
             protectCityStates(civInfo)
             bullyCityStates(civInfo)
         }
-        automateUnits(civInfo)  // this is the most expensive part
+        automateUnits(civInfo,true)  // this is the most expensive part
 
         if (civInfo.isMajorCiv() && civInfo.gameInfo.isReligionEnabled()) {
             // Can only be done now, as the prophet first has to decide to found/enhance a religion
@@ -77,7 +77,7 @@ object NextTurnAutomation {
         tryVoteForDiplomaticVictory(civInfo)
     }
 
-    fun automateCivMoves_modify(civInfo: Civilization,Diplomacy_flag: Boolean,workerAuto:Boolean) {
+    fun automateCivMoves_modify(civInfo: Civilization,Diplomacy_flag: Boolean,workerAuto:Boolean,post: Boolean) {
         if (civInfo.isBarbarian()) return BarbarianAutomation(civInfo).automate()
 
         respondToPopupAlerts(civInfo)
@@ -86,18 +86,18 @@ object NextTurnAutomation {
         if (civInfo.isMajorCiv()) {
             if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
                 if (Diplomacy_flag) {
-                    DiplomacyAutomation.declareWar(civInfo)//发起战争
+                    DiplomacyAutomation.declareWar(civInfo,post)//发起战争
                 }
-                DiplomacyAutomation.offerPeaceTreaty(civInfo)//和平协定
-                DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)//声明友好
+                DiplomacyAutomation.offerPeaceTreaty(civInfo,post)//和平协定
+                DiplomacyAutomation.offerDeclarationOfFriendship(civInfo,post)//声明友好
             }
             if (civInfo.gameInfo.isReligionEnabled()) {
                 ReligionAutomation.spendFaithOnReligion(civInfo)
             }
-            DiplomacyAutomation.offerOpenBorders(civInfo)//保留开放边境
+            DiplomacyAutomation.offerOpenBorders(civInfo,post)//保留开放边境
             if (Diplomacy_flag) {
-                DiplomacyAutomation.offerResearchAgreement(civInfo)//研究协定
-                DiplomacyAutomation.offerDefensivePact(civInfo)//防御协定
+                DiplomacyAutomation.offerResearchAgreement(civInfo,post)//研究协定
+                DiplomacyAutomation.offerDefensivePact(civInfo,post)//防御协定
             }
             TradeAutomation.exchangeLuxuries(civInfo)
             issueRequests(civInfo)
@@ -115,7 +115,7 @@ object NextTurnAutomation {
             protectCityStates(civInfo)
             bullyCityStates(civInfo)
         }
-        automateUnits_modify(civInfo,workerAuto)  // this is the most expensive part
+        automateUnits_modify(civInfo,workerAuto,post)  // this is the most expensive part
 
         if (civInfo.isMajorCiv() && civInfo.gameInfo.isReligionEnabled()) {
             // Can only be done now, as the prophet first has to decide to found/enhance a religion
@@ -383,12 +383,12 @@ object NextTurnAutomation {
     }
 
 
-    private fun automateUnits(civInfo: Civilization) {
+    private fun automateUnits(civInfo: Civilization,post: Boolean) {
         val isAtWar = civInfo.isAtWar()
         val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
         var id = 1
         for (unit in sortedUnits) {
-            UnitAutomation.automateUnitMoves_easy(unit,id)
+            UnitAutomation.automateUnitMoves_easy(unit, id, post )
             id++
         }
     }
@@ -405,10 +405,14 @@ object NextTurnAutomation {
         return mapUnit
     }
 
-    private fun automateUnits_modify(civInfo: Civilization,workerAuto:Boolean) {
+    private fun automateUnits_modify(civInfo: Civilization,workerAuto:Boolean,post: Boolean){
         val isAtWar = civInfo.isAtWar()
         val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
-        for (unit in sortedUnits) UnitAutomation.automateUnitMoves_modify(unit,workerAuto)
+        var id = 1
+        for (unit in sortedUnits) {
+            UnitAutomation.automateUnitMoves_modify(unit, id, workerAuto,post)
+            id++
+        }
     }
 
     private fun getUnitPriority(unit: MapUnit, isAtWar: Boolean): Int {

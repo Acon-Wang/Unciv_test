@@ -424,8 +424,8 @@ class GameInfo : IsPartOfGameInfoSerialization, HasGameInfoSerializationVersion 
         // whether our units can commit automated actions and then be attacked immediately etc.
 //         notifyOfCloseEnemyUnits(player)
     }
-    fun nextTenTurn(PreTurns:Int,Diplomacy_flag:Boolean,workerAuto:Boolean) {
-
+    fun nextTenTurn(PreTurns:Int,Diplomacy_flag:Boolean,workerAuto:Boolean,post:Boolean) {
+        DebugUtils.SIMULATEING=true
         DebugUtils.SIMULATE_UNTIL_TURN=PreTurns
         var player = currentPlayerCiv
         var playerIndex = civilizations.indexOf(player)
@@ -468,7 +468,7 @@ class GameInfo : IsPartOfGameInfoSerialization, HasGameInfoSerializationVersion 
             // Starting preparations
             TurnManager(player).startTurn_modify()
             // Automation done here
-            TurnManager(player).automateTurn_modify(Diplomacy_flag, workerAuto)
+            TurnManager(player).automateTurn_modify(Diplomacy_flag, workerAuto, post)
             // Do we need to break if player won?
             if (simulateUntilWin && player.victoryManager.hasWon()) {
                 simulateUntilWin = false

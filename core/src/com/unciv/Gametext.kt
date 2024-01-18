@@ -18,7 +18,7 @@ open class Gametext(){
             val game: GameInfo = UncivFiles.gameInfoFromString_easy(content)
             uncivGame.gameInfo = game
             UncivGame.Current = uncivGame
-            game.nextTenTurn(PreTurns,Diplomacy_flag,workerAuto)
+            game.nextTenTurn(PreTurns,Diplomacy_flag,workerAuto,false)
         }
 
     }

@@ -11,6 +11,7 @@ import com.unciv.ui.components.fonts.FontFamilyData
 import com.unciv.ui.components.fonts.Fonts
 import com.unciv.ui.components.input.KeyboardBindings
 import com.unciv.ui.screens.overviewscreen.EmpireOverviewCategories
+import com.unciv.utils.DebugUtils
 import com.unciv.utils.Display
 import com.unciv.utils.ScreenOrientation
 import java.text.Collator
@@ -160,7 +161,7 @@ class GameSettings {
     fun addCompletedTutorialTask(tutorialTask: String): Boolean {
         if (!tutorialTasksCompleted.add(tutorialTask)) return false
         UncivGame.Current.isTutorialTaskCollapsed = false
-        save()
+        if (DebugUtils.SIMULATEING==false)save()
         return true
     }
     fun addCompletedTutorialTask_modify(tutorialTask: String): Boolean {

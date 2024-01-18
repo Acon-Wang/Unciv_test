@@ -21,4 +21,6 @@ object DebugUtils {
      */
     var SIMULATE_UNTIL_TURN: Int = 10
 
+    var SIMULATEING: Boolean = false
+
 }
