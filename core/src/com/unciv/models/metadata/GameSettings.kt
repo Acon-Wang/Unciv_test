@@ -163,7 +163,12 @@ class GameSettings {
         save()
         return true
     }
-
+    fun addCompletedTutorialTask_modify(tutorialTask: String): Boolean {
+        if (!tutorialTasksCompleted.add(tutorialTask)) return false
+        UncivGame.Current.isTutorialTaskCollapsed = false
+//         save()
+        return true
+    }
     fun updateLocaleFromLanguage() {
         val bannedCharacters = listOf(' ', '_', '-', '(', ')') // Things not to have in enum names
         val languageName = language.filterNot { it in bannedCharacters }

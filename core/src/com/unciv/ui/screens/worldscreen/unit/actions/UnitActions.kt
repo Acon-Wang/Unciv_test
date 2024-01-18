@@ -125,8 +125,8 @@ object UnitActions {
         addFortifyActions(actionList, unit, true)
         addAutomateAction(unit, actionList, false)
 
-//         addSwapAction(unit, actionList)
-//         addDisbandAction(actionList, unit)
+        addSwapAction(unit, actionList)
+        addDisbandAction(actionList, unit)
         addGiftAction(unit, actionList, tile)
         if (unit.isCivilian()) addExplorationActions(unit, actionList)
 

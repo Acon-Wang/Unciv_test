@@ -366,7 +366,7 @@ class UncivFiles(
             return gameInfo
         }
         fun gameInfoFromString_easy(gameData: String): GameInfo {
-//             RulesetCache.loadRulesets(true,false)
+            RulesetCache.loadRulesets(true,false)
             val unzippedJson = try {
                 Gzip.unzip(gameData.trim())
             } catch (_: Exception) {

@@ -62,7 +62,57 @@ class UnitTurnManager(val unit: MapUnit) {
                 UniqueTriggerActivation.triggerUnitwideUnique(unique, unit)
     }
 
+    fun endTurn_modify() {
+        unit.movement.clearPathfindingCache()
+        if (unit.currentMovement > 0
+            && unit.getTile().improvementInProgress != null
+            && unit.canBuildImprovement(unit.getTile().getTileImprovementInProgress()!!)
+        ) workOnImprovement_modify()
+        if (!unit.hasUnitMovedThisTurn() && unit.isFortified() && unit.turnsFortified < 2) {
+            unit.turnsFortified++
+        }
+        if (!unit.isFortified())
+            unit.turnsFortified = 0
 
+        if (!unit.hasUnitMovedThisTurn() || unit.hasUnique(UniqueType.HealsEvenAfterAction))
+            healUnit()
+
+        if (unit.action != null && unit.health > 99)
+            if (unit.isActionUntilHealed()) {
+                unit.action = null // wake up when healed
+            }
+
+        if (unit.isPreparingParadrop() || unit.isPreparingAirSweep())
+            unit.action = null
+
+        if (unit.hasUnique(UniqueType.ReligiousUnit)
+            && unit.getTile().getOwner() != null
+            && !unit.getTile().getOwner()!!.isCityState()
+            && !unit.civ.diplomacyFunctions.canPassThroughTiles(unit.getTile().getOwner()!!)
+        ) {
+            val lostReligiousStrength =
+                unit.getMatchingUniques(UniqueType.CanEnterForeignTilesButLosesReligiousStrength)
+                    .map { it.params[0].toInt() }
+                    .minOrNull()
+            if (lostReligiousStrength != null)
+                unit.religiousStrengthLost += lostReligiousStrength
+            if (unit.religiousStrengthLost >= unit.baseUnit.religiousStrength) {
+                unit.civ.addNotification("Your [${unit.name}] lost its faith after spending too long inside enemy territory!",
+                    unit.getTile().position, NotificationCategory.Units, unit.name)
+                unit.destroy()
+            }
+        }
+
+        doCitadelDamage()
+        doTerrainDamage()
+
+        unit.addMovementMemory()
+
+        for (unique in unit.getTriggeredUniques(UniqueType.TriggerUponEndingTurnInTile))
+            if (unique.conditionals.any { it.type == UniqueType.TriggerUponEndingTurnInTile
+                    && unit.getTile().matchesFilter(it.params[0], unit.civ) })
+                UniqueTriggerActivation.triggerUnitwideUnique(unique, unit)
+    }
     private fun healUnit() {
         val amountToHealBy = unit.getHealAmountForCurrentTile()
         if (amountToHealBy == 0) return
@@ -174,7 +224,21 @@ class UnitTurnManager(val unit: MapUnit) {
         tile.improvementInProgress = null
         tile.getCity()?.updateCitizens = true
     }
+    private fun workOnImprovement_modify() {
+        val tile = unit.getTile()
+        if (tile.isMarkedForCreatesOneImprovement()) return
+        tile.turnsToImprovement -= 1
+        if (tile.turnsToImprovement != 0) return
 
+        if (unit.civ.isCurrentPlayer())
+            UncivGame.Current.settings.addCompletedTutorialTask_modify("Construct an improvement")
+
+        val improvementInProgress = tile.improvementInProgress ?: return
+        tile.changeImprovement(improvementInProgress, unit.civ)
+
+        tile.improvementInProgress = null
+        tile.getCity()?.updateCitizens = true
+    }
 
 
 }
