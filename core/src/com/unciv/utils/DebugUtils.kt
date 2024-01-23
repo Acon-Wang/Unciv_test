@@ -23,4 +23,6 @@ object DebugUtils {
 
     var SIMULATEING: Boolean = false
 
+    var NEED_POST: Boolean = false
+
 }

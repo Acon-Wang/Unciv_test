@@ -28,6 +28,7 @@ import com.unciv.models.ruleset.unique.UniqueType
 import com.unciv.models.ruleset.unit.BaseUnit
 import com.unciv.models.translations.tr
 import com.unciv.ui.screens.victoryscreen.RankingType
+import com.unciv.utils.DebugUtils
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -54,7 +55,7 @@ object DiplomacyAutomation {
         for (otherCiv in civsThatWeCanDeclareFriendshipWith) {
             // Default setting is 2, this will be changed according to different civ.
             //random随机符合
-            if (post){
+            if (post&&DebugUtils.NEED_POST){
                 val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
                 val jsonString = Json.encodeToString(contentData)
                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/wantsToSignDeclarationOfFrienship", jsonString)
@@ -218,7 +219,7 @@ object DiplomacyAutomation {
         for (otherCiv in civsThatWeCanOpenBordersWith) {
             // Default setting is 3, this will be changed according to different civ.
             //random随机符合
-            if(post){
+            if(post&&DebugUtils.NEED_POST){
                 val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
                 val jsonString = Json.encodeToString(contentData)
                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/wantsToOpenBorders", jsonString)
@@ -293,7 +294,7 @@ object DiplomacyAutomation {
     internal fun offerResearchAgreement(civInfo: Civilization,post: Boolean=true) {
         if (!civInfo.diplomacyFunctions.canSignResearchAgreement()) return // don't waste your time
         val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
-        if (post){
+        if (post&&DebugUtils.NEED_POST){
             val canSignResearchAgreementCiv = civInfo.getKnownCivs()
                 .filter {
 //                 civInfo.diplomacyFunctions.canSignResearchAgreementsWith(it)
@@ -349,7 +350,7 @@ object DiplomacyAutomation {
 
         for (otherCiv in canSignDefensivePactCiv) {
             // Default setting is 3, this will be changed according to different civ.
-            if (post){
+            if (post&&DebugUtils.NEED_POST){
                 val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
                 val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
                 val jsonString = Json.encodeToString(contentData)
@@ -511,7 +512,7 @@ object DiplomacyAutomation {
         if (enemyCivs.none()) return
 
         val minMotivationToAttack = 20
-        if (post){
+        if (post&&DebugUtils.NEED_POST){
             val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
             var max_name = ""
             var max_score = 0
@@ -848,7 +849,7 @@ object DiplomacyAutomation {
             .filter { it.tradeRequests.none { tradeRequest -> tradeRequest.requestingCiv == civInfo.civName && tradeRequest.trade.isPeaceTreaty() } }
 
         for (enemy in enemiesCiv) {
-            if (post){
+            if (post&&DebugUtils.NEED_POST){
                 val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
                 val contentData = ContentData_three(content, civInfo.civName,enemy.civName)
                 val jsonString = Json.encodeToString(contentData)

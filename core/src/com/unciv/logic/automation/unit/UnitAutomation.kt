@@ -18,6 +18,7 @@ import com.unciv.models.ruleset.unique.StateForConditionals
 import com.unciv.models.ruleset.unique.UniqueType
 import com.unciv.ui.screens.worldscreen.unit.actions.UnitActionsPillage
 import com.unciv.ui.screens.worldscreen.unit.actions.UnitActionsUpgrade
+import com.unciv.utils.DebugUtils
 
 object UnitAutomation {
 
@@ -292,7 +293,7 @@ object UnitAutomation {
         if (tryTakeBackCapturedCity(unit)) return
 
         // Focus all units without a specific target on the enemy city closest to one of our cities
-        if (post){
+        if (post&& DebugUtils.NEED_POST){
             if (HeadTowardsEnemyCityAutomation.tryHeadTowardsEnemyCity_modify(unit,id)) return
         }
         else
