@@ -99,16 +99,18 @@ class TradeEvaluation {
     fun getTradeAcceptability_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean,List<String>> {
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
+        var motivation = 0
         val citiesAskedToSurrender = trade.ourOffers.filter { it.type == TradeType.City }.count()
         val maxCitiesToSurrender = ceil(evaluator.cities.size.toFloat() / 5).toInt()
         if (citiesAskedToSurrender > maxCitiesToSurrender) {
             Reason_reject.add("There are too many cities to trade")
+            motivation-=50
         }
 
         val sumOfTheirOffers = trade.theirOffers.asSequence()
             .filter { it.type != TradeType.Treaty } // since treaties should only be evaluated once for 2 sides
             .map { evaluateBuyCostWithInflation(it, evaluator, tradePartner) }.sum()
-
+        motivation+=sumOfTheirOffers
         var sumOfOurOffers = trade.ourOffers.sumOf { evaluateSellCostWithInflation(it, evaluator, tradePartner) }
 
         val relationshipLevel = evaluator.getDiplomacyManager(tradePartner).relationshipIgnoreAfraid()
@@ -119,11 +121,13 @@ class TradeEvaluation {
                 Reason_reject.add("We have a hostile relationship")
                 Reason_reject.add("The value of the resources we provide diminishes in your eyes")
                 sumOfOurOffers = (sumOfOurOffers * 1.5).toInt()
+                motivation-=sumOfOurOffers
             }
             else if (relationshipLevel == RelationshipLevel.Unforgivable) {
                 Reason_reject.add("We have an unforgivable relationship")
                 Reason_reject.add("The value of the resources we provide is greatly diminished in your eyes")
                 sumOfOurOffers *= 2
+                motivation-=sumOfOurOffers
             }
         }
         if (trade.ourOffers.firstOrNull { it.name == Constants.defensivePact } != null) {
@@ -131,9 +135,13 @@ class TradeEvaluation {
                 //todo: Add more in depth evaluation here
             } else {
                 Reason_reject.add("We propose a defense treaty, but it's not close")
+                motivation-=20
             }
         }
         Reason_consent.add("We are satisfied with the value they offer")
+        motivation+=30
+        Reason_consent.add(Integer.toString(motivation))
+        Reason_reject.add(Integer.toString(motivation))
         if (sumOfTheirOffers - sumOfOurOffers>0)return Pair(true,Reason_consent)
         else return Pair(false,Reason_reject)
     }

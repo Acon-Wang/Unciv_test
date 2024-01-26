@@ -201,6 +201,8 @@ object DiplomacyAutomation {
 
         motivation -= hasAtLeastMotivationToAttack(civInfo, otherCiv, motivation / 2) * 2
 
+        Reason_consent.add(Integer.toString(motivation))
+        Reason_reject.add(Integer.toString(motivation))
         if (motivation>0)return Pair(true,Reason_consent)
         else return Pair(false,Reason_reject)
     }
@@ -267,24 +269,35 @@ object DiplomacyAutomation {
     fun wantsToOpenBorders_easy(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean,List<String>>{
         var reason= mutableListOf<String>()
         var flag = 0
+        var score = 0
         if (civInfo.getDiplomacyManager(otherCiv).isRelationshipLevelLT(RelationshipLevel.Favorable)){
             reason.add("We don't have a good relationship")
+            score-=50
             flag++
         }
         // Don't accept if they are at war with our friends, they might use our land to attack them
         if (civInfo.diplomacy.values.any { it.isRelationshipLevelGE(RelationshipLevel.Friend) && it.otherCiv().isAtWarWith(otherCiv)}){
             reason.add("Don't accept if they are at war with our friends, they might use our land to attack them")
+            score-=50
             flag++
         }
 
         if (hasAtLeastMotivationToAttack(civInfo, otherCiv, (civInfo.getDiplomacyManager(otherCiv).opinionOfOtherCiv()/ 2 - 10).toInt()) >= 0){
             reason.add("We can attack it, so we don't have to open the border")
+            score-=50
             flag++
         }
-        if (flag>0)return Pair(false,reason)
+        if (flag>0){
+            reason.add(Integer.toString(score))
+            return Pair(false,reason)
+        }
         reason.add("We have a good relationship")
+        score+=10
         reason.add("You're not at war with my friends")
+        score+=10
         reason.add("We don't have to go to war")
+        score+=10
+        reason.add(Integer.toString(score))
         return Pair(true,reason)
     }
 
@@ -432,9 +445,13 @@ object DiplomacyAutomation {
     fun wantsToSignDefensivePact_easy(civInfo: Civilization, otherCiv: Civilization):Pair<Boolean,List<String>>{
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
+
         val diploManager = civInfo.getDiplomacyManager(otherCiv)
+        // We have to already be at RelationshipLevel.Ally, so we must have 80 oppinion of them
+        var motivation = diploManager.opinionOfOtherCiv().toInt() - 80
         if (diploManager.isRelationshipLevelLT(RelationshipLevel.Ally)) {
             Reason_reject.add("We don't have a good relationship")
+            motivation-=100
 //             return Reason_reject
         }
         val commonknownCivs = diploManager.getCommonKnownCivs()
@@ -444,6 +461,7 @@ object DiplomacyAutomation {
                 && thirdCiv.getDiplomacyManager(otherCiv).isRelationshipLevelLT(RelationshipLevel.Favorable))
             {
                 Reason_reject.add("You don't get along with my friends")
+                motivation-=100
 //                 return Reason_reject
             }
 
@@ -457,7 +475,7 @@ object DiplomacyAutomation {
         val allAliveCivs = allCivs - deadCivs
 
         // We have to already be at RelationshipLevel.Ally, so we must have 80 oppinion of them
-        var motivation = diploManager.opinionOfOtherCiv().toInt() - 80
+//         var motivation = diploManager.opinionOfOtherCiv().toInt() - 80
 
         // If they are stronger than us, then we value it a lot more
         // If they are weaker than us, then we don't value it
@@ -481,8 +499,11 @@ object DiplomacyAutomation {
         // Try to have a defensive pact with 1/5 of all civs
         val civsToAllyWith = 0.20f * allAliveCivs
         // Goes form 0 to -50 as the civ gets more allies, offset by civsToAllyWith
+        Reason_reject.add("I think I signed enough")
         motivation -= (50f * (defensivePacts - civsToAllyWith) / (allAliveCivs - civsToAllyWith)).coerceAtMost(0f).toInt()
         if ((50f * (defensivePacts - civsToAllyWith) / (allAliveCivs - civsToAllyWith)).coerceAtMost(0f).toInt()>0)Reason_reject.add("I think I signed enough")
+        Reason_consent.add(Integer.toString(motivation))
+        Reason_reject.add(Integer.toString(motivation))
         if (motivation>0)return Pair(true,Reason_consent)
         else return Pair(false,Reason_reject)
     }
@@ -669,6 +690,8 @@ object DiplomacyAutomation {
         val closestCities = NextTurnAutomation.getClosestCities(civInfo, otherCiv)
         if (closestCities == null) {
             Reason_reject.add("Be too far")
+            Reason_consent.add(Integer.toString(-100))
+            Reason_reject.add(Integer.toString(-100))
             return Pair(false,Reason_reject)
         }
         val baseForce = 30f
@@ -687,6 +710,7 @@ object DiplomacyAutomation {
 
         if (theirCombatStrength > ourCombatStrength) {
             Reason_reject.add("It's so much better than us")
+            modifierMap["Relative combat strength less"] = -50
 //             return Reason_reject
         }
 
@@ -805,6 +829,8 @@ object DiplomacyAutomation {
         // We don't need to execute the expensive BFSs below if we're below the threshold here
         // anyways, since it won't get better from those, only worse.
         if (motivationSoFar < atLeast) {
+            Reason_consent.add(Integer.toString(motivationSoFar))
+            Reason_reject.add(Integer.toString(motivationSoFar))
             return Pair(false,Reason_reject)
         }
 
@@ -823,12 +849,16 @@ object DiplomacyAutomation {
         // We don't need to execute the expensive BFSs below if we're below the threshold here
         // anyways, since it won't get better from those, only worse.
         if (motivationSoFar < atLeast) {
+            Reason_consent.add(Integer.toString(motivationSoFar))
+            Reason_reject.add(Integer.toString(motivationSoFar))
             return Pair(false,Reason_reject)
         }
 
         val reachableEnemyCitiesBfs = BFS(civInfo.getCapital(true)!!.getCenterTile()) { isTileCanMoveThrough(it) }
         reachableEnemyCitiesBfs.stepToEnd()
         val reachableEnemyCities = otherCiv.cities.filter { reachableEnemyCitiesBfs.hasReachedTile(it.getCenterTile()) }
+        Reason_consent.add(Integer.toString(motivationSoFar))
+        Reason_reject.add(Integer.toString(motivationSoFar))
         if (reachableEnemyCities.isEmpty()) return Pair(false,Reason_reject) // Can't even reach the enemy city, no point in war.
 
         return Pair(true,Reason_consent)

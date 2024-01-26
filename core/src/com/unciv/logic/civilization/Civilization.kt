@@ -793,7 +793,7 @@ class Civilization : IsPartOfGameInfoSerialization {
         addNotification(text, actions.asIterable(), category, *notificationIcons)
 
     fun addNotification(text: String, actions: Iterable<NotificationAction>?, category: NotificationCategory, vararg notificationIcons: String) {
-        if (playerType == PlayerType.AI) return // no point in lengthening the saved game info if no one will read it
+//         if (playerType == PlayerType.AI) return // no point in lengthening the saved game info if no one will read it
         notifications.add(Notification(text, notificationIcons, actions, category))
     }
     // endregion
