@@ -159,6 +159,8 @@ class Civilization : IsPartOfGameInfoSerialization {
 
     var notifications = ArrayList<Notification>()
 
+    var inner_state: String = ""
+
     var notificationsLog = ArrayList<NotificationsLog>()
     class NotificationsLog(val turn: Int = 0) {
         var notifications = ArrayList<Notification>()
@@ -204,7 +206,6 @@ class Civilization : IsPartOfGameInfoSerialization {
 
     var totalCultureForContests = 0
     var totalFaithForContests = 0
-
     /**
      * Container class to represent a historical attack recently performed by this civilization.
      *
@@ -243,6 +244,7 @@ class Civilization : IsPartOfGameInfoSerialization {
 
     constructor(civName: String) {
         this.civName = civName
+        this.inner_state = "{enemy_civ:[china, rome]}"
     }
 
     fun clone(): Civilization {
@@ -290,6 +292,7 @@ class Civilization : IsPartOfGameInfoSerialization {
         toReturn.statsHistory = statsHistory.clone()
         toReturn.resourceStockpiles = resourceStockpiles.clone()
         toReturn.resourcehash = resourcehash
+        toReturn.inner_state = inner_state
         return toReturn
     }
 
