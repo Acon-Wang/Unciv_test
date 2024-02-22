@@ -139,10 +139,11 @@ class TradeEvaluation {
             }
         }
         Reason_consent.add("We are satisfied with the value they offer")
+        Reason_reject.add("We are not satisfied with the value they offer")
         motivation+=30
         Reason_consent.add(Integer.toString(motivation))
         Reason_reject.add(Integer.toString(motivation))
-        if (sumOfTheirOffers - sumOfOurOffers>0)return Pair(true,Reason_consent)
+        if (motivation>0)return Pair(true,Reason_consent)
         else return Pair(false,Reason_reject)
     }
 
