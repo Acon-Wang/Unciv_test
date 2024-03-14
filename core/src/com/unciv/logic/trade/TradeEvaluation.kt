@@ -62,7 +62,7 @@ class TradeEvaluation {
     fun isTradeAcceptable(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Boolean {
         return getTradeAcceptability(trade, evaluator, tradePartner) >= 0
     }
-    fun isTradeAcceptable_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean,List<String>> {
+    fun isTradeAcceptable_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean, Map<String, List<String>>> {
         return getTradeAcceptability_easy(trade, evaluator, tradePartner)
     }
 
@@ -96,7 +96,7 @@ class TradeEvaluation {
 
         return sumOfTheirOffers - sumOfOurOffers
     }
-    fun getTradeAcceptability_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean,List<String>> {
+    fun getTradeAcceptability_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean, Map<String, List<String>>> {
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
         var motivation = 0
@@ -143,8 +143,9 @@ class TradeEvaluation {
         motivation+=30
         Reason_consent.add(Integer.toString(motivation))
         Reason_reject.add(Integer.toString(motivation))
-        if (motivation>0)return Pair(true,Reason_consent)
-        else return Pair(false,Reason_reject)
+        val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+        if (motivation>0) return Pair(true,reasonsDict)
+        else return Pair(false,reasonsDict)
     }
 
     fun evaluateBuyCostWithInflation(offer: TradeOffer, civInfo: Civilization, tradePartner: Civilization): Int {

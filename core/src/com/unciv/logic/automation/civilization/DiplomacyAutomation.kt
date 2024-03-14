@@ -135,7 +135,7 @@ object DiplomacyAutomation {
 
         return motivation > 0
     }
-    fun wantsToSignDeclarationOfFrienship_easy(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean,List<String>> {
+    fun wantsToSignDeclarationOfFrienship_easy(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean, Map<String, List<String>>> {
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
         val diploManager = civInfo.getDiplomacyManager(otherCiv)
@@ -203,8 +203,9 @@ object DiplomacyAutomation {
 
         Reason_consent.add(Integer.toString(motivation))
         Reason_reject.add(Integer.toString(motivation))
-        if (motivation>0)return Pair(true,Reason_consent)
-        else return Pair(false,Reason_reject)
+        val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+        if (motivation>0)return Pair(true,reasonsDict)
+        else return Pair(false,reasonsDict)
     }
     /**
      *  提议开放边界，根据能够开放的城市，按照其relationshipLevel降序排列
@@ -266,39 +267,42 @@ object DiplomacyAutomation {
             return false
         return true
     }
-    fun wantsToOpenBorders_easy(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean,List<String>>{
-        var reason= mutableListOf<String>()
+    fun wantsToOpenBorders_easy(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean, Map<String, List<String>>>{
+        var Reason_consent = mutableListOf<String>()
+        var Reason_reject = mutableListOf<String>()
         var flag = 0
         var score = 0
         if (civInfo.getDiplomacyManager(otherCiv).isRelationshipLevelLT(RelationshipLevel.Favorable)){
-            reason.add("We don't have a good relationship")
+            Reason_reject.add("We don't have a good relationship")
             score-=50
             flag++
         }
         // Don't accept if they are at war with our friends, they might use our land to attack them
         if (civInfo.diplomacy.values.any { it.isRelationshipLevelGE(RelationshipLevel.Friend) && it.otherCiv().isAtWarWith(otherCiv)}){
-            reason.add("Don't accept if they are at war with our friends, they might use our land to attack them")
+            Reason_reject.add("Don't accept if they are at war with our friends, they might use our land to attack them")
             score-=50
             flag++
         }
 
         if (hasAtLeastMotivationToAttack(civInfo, otherCiv, (civInfo.getDiplomacyManager(otherCiv).opinionOfOtherCiv()/ 2 - 10).toInt()) >= 0){
-            reason.add("We can attack it, so we don't have to open the border")
+            Reason_reject.add("We can attack it, so we don't have to open the border")
             score-=50
             flag++
         }
         if (flag>0){
-            reason.add(Integer.toString(score))
-            return Pair(false,reason)
+            Reason_reject.add(Integer.toString(score))
+            val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+            return Pair(false,reasonsDict)
         }
-        reason.add("We have a good relationship")
+        Reason_consent.add("We have a good relationship")
         score+=10
-        reason.add("You're not at war with my friends")
+        Reason_consent.add("You're not at war with my friends")
         score+=10
-        reason.add("We don't have to go to war")
+        Reason_consent.add("We don't have to go to war")
         score+=10
-        reason.add(Integer.toString(score))
-        return Pair(true,reason)
+        Reason_consent.add(Integer.toString(score))
+        val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+        return Pair(true,reasonsDict)
     }
 
     /**
@@ -442,7 +446,7 @@ object DiplomacyAutomation {
 
         return motivation > 0
     }
-    fun wantsToSignDefensivePact_easy(civInfo: Civilization, otherCiv: Civilization):Pair<Boolean,List<String>>{
+    fun wantsToSignDefensivePact_easy(civInfo: Civilization, otherCiv: Civilization):Pair<Boolean, Map<String, List<String>>>{
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
 
@@ -504,8 +508,9 @@ object DiplomacyAutomation {
         if ((50f * (defensivePacts - civsToAllyWith) / (allAliveCivs - civsToAllyWith)).coerceAtMost(0f).toInt()>0)Reason_reject.add("I think I signed enough")
         Reason_consent.add(Integer.toString(motivation))
         Reason_reject.add(Integer.toString(motivation))
-        if (motivation>0)return Pair(true,Reason_consent)
-        else return Pair(false,Reason_reject)
+        val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+        if (motivation>0)return Pair(true,reasonsDict)
+        else return Pair(false,reasonsDict)
     }
 
     /**
