@@ -683,7 +683,7 @@ object DiplomacyAutomation {
 
         return motivationSoFar
     }
-    fun hasAtLeastMotivationToAttack_easy(civInfo: Civilization, otherCiv: Civilization, atLeast: Int):Pair<Boolean,List<String>> {
+    fun hasAtLeastMotivationToAttack_easy(civInfo: Civilization, otherCiv: Civilization, atLeast: Int):Pair<Boolean, Map<String, List<String>>>  {
         val modifierMap = HashMap<String, Int>()
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
@@ -692,7 +692,8 @@ object DiplomacyAutomation {
             Reason_reject.add("Be too far")
             Reason_consent.add(Integer.toString(-100))
             Reason_reject.add(Integer.toString(-100))
-            return Pair(false,Reason_reject)
+            val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+            return Pair(false, reasonsDict)
         }
         val baseForce = 30f
 
@@ -831,7 +832,8 @@ object DiplomacyAutomation {
         if (motivationSoFar < atLeast) {
             Reason_consent.add(Integer.toString(motivationSoFar))
             Reason_reject.add(Integer.toString(motivationSoFar))
-            return Pair(false,Reason_reject)
+            val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+            return Pair(false,reasonsDict)
         }
 
 
@@ -851,7 +853,8 @@ object DiplomacyAutomation {
         if (motivationSoFar < atLeast) {
             Reason_consent.add(Integer.toString(motivationSoFar))
             Reason_reject.add(Integer.toString(motivationSoFar))
-            return Pair(false,Reason_reject)
+            val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+            return Pair(false,reasonsDict)
         }
 
         val reachableEnemyCitiesBfs = BFS(civInfo.getCapital(true)!!.getCenterTile()) { isTileCanMoveThrough(it) }
@@ -859,9 +862,10 @@ object DiplomacyAutomation {
         val reachableEnemyCities = otherCiv.cities.filter { reachableEnemyCitiesBfs.hasReachedTile(it.getCenterTile()) }
         Reason_consent.add(Integer.toString(motivationSoFar))
         Reason_reject.add(Integer.toString(motivationSoFar))
-        if (reachableEnemyCities.isEmpty()) return Pair(false,Reason_reject) // Can't even reach the enemy city, no point in war.
+        val reasonsDict: Map<String, List<String>> = mapOf("consent" to Reason_consent, "reject" to Reason_reject)
+        if (reachableEnemyCities.isEmpty()) Pair(false,reasonsDict) // Can't even reach the enemy city, no point in war.
 
-        return Pair(true,Reason_consent)
+        return Pair(true,reasonsDict)
     }
     /**
      * 提出和平协议，通过一定规则去判断，当motivation依旧大于10时会有拒绝的情况。。。
