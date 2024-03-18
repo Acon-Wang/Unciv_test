@@ -26,6 +26,7 @@ import com.unciv.models.ruleset.unique.UniqueType
 import com.unciv.models.ruleset.unit.BaseUnit
 import com.unciv.models.stats.Stat
 import com.unciv.ui.screens.victoryscreen.RankingType
+import com.unciv.utils.DebugUtils
 import kotlin.random.Random
 
 object NextTurnAutomation {
@@ -39,16 +40,20 @@ object NextTurnAutomation {
 
         if (civInfo.isMajorCiv()) {
             if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
-                DiplomacyAutomation.declareWar(civInfo)
-                DiplomacyAutomation.offerPeaceTreaty(civInfo)
-                DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)
+                if (DebugUtils.Active_Diplomacy) {
+                    DiplomacyAutomation.declareWar(civInfo)
+                    DiplomacyAutomation.offerPeaceTreaty(civInfo)
+                    DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)
+                }
             }
             if (civInfo.gameInfo.isReligionEnabled()) {
                 ReligionAutomation.spendFaithOnReligion(civInfo)//
             }
-            DiplomacyAutomation.offerOpenBorders(civInfo)
-            DiplomacyAutomation.offerResearchAgreement(civInfo)
-            DiplomacyAutomation.offerDefensivePact(civInfo)
+            if (DebugUtils.Active_Diplomacy) {
+                DiplomacyAutomation.offerOpenBorders(civInfo)
+                DiplomacyAutomation.offerResearchAgreement(civInfo)
+                DiplomacyAutomation.offerDefensivePact(civInfo)
+            }
             TradeAutomation.exchangeLuxuries(civInfo)
             issueRequests(civInfo)
             adoptPolicy(civInfo)  // todo can take a second - why?

@@ -25,4 +25,6 @@ object DebugUtils {
 
     var NEED_POST: Boolean = false
 
+    var Active_Diplomacy:Boolean = false
+
 }
