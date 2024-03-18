@@ -658,6 +658,9 @@ class DiplomacyManager() : IsPartOfGameInfoSerialization {
         setFlag(DiplomacyFlags.Denunciation, 30)
         otherCivDiplomacy().setFlag(DiplomacyFlags.Denunciation, 30)
 
+        civInfo.addNotification("[${civInfo.civName}] has denounced [${otherCiv().civName}]!",
+            NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
+
         otherCiv().addNotification("[${civInfo.civName}] has denounced us!",
             NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
 

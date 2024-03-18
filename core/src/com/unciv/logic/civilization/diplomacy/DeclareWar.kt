@@ -46,6 +46,10 @@ object DeclareWar {
         onWarDeclared(diplomacyManager, true)
         onWarDeclared(otherCivDiplomacy, false)
 
+        civInfo.addNotification("[${civInfo.civName}] has declared war on [${otherCiv.civName}]!",
+            NotificationCategory.Diplomacy, NotificationIcon.War, civInfo.civName)
+        civInfo.popupAlerts.add(PopupAlert(AlertType.WarDeclaration, civInfo.civName))
+
         otherCiv.addNotification("[${civInfo.civName}] has declared war on us!",
             NotificationCategory.Diplomacy, NotificationIcon.War, civInfo.civName)
         otherCiv.popupAlerts.add(PopupAlert(AlertType.WarDeclaration, civInfo.civName))
