@@ -13,6 +13,14 @@ import com.unciv.logic.trade.TradeLogic
 import com.unciv.logic.trade.TradeOffer
 import com.unciv.logic.trade.TradeRequest
 import com.unciv.logic.trade.TradeType
+import com.unciv.utils.DebugUtils
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.math.min
 
 object TradeAutomation {
@@ -34,17 +42,47 @@ object TradeAutomation {
              * the same resource to ANOTHER civ in this turn. Complicated!
              */
             civInfo.tradeRequests.remove(tradeRequest)
-            if (TradeEvaluation().isTradeAcceptable(tradeLogic.currentTrade, civInfo, otherCiv)) {
-                tradeLogic.acceptTrade()
-                otherCiv.addNotification("[${civInfo.civName}] has accepted your trade request", NotificationCategory.Trade, NotificationIcon.Trade, civInfo.civName)
-            } else {
-                val counteroffer = getCounteroffer(civInfo, tradeRequest)
-                if (counteroffer != null) {
-                    otherCiv.addNotification("[${civInfo.civName}] has made a counteroffer to your trade request", NotificationCategory.Trade, NotificationIcon.Trade, civInfo.civName)
-                    otherCiv.tradeRequests.add(counteroffer)
-                } else
-                    tradeRequest.decline(civInfo)
+            if (DebugUtils.NEED_POST){
+                val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
+                val jsonString = Json.encodeToString(contentData)
+                val postRequestResult = sendPostRequest("http://127.0.0.1:2337/getTradeAcceptability", jsonString)
+                val jsonObject = Json.parseToJsonElement(postRequestResult)
+                val resultElement = jsonObject.jsonObject["result"]
+                val resultValue: Boolean? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+                    if (resultElement.contentOrNull == "yes") {
+                        true
+                    } else {
+                        resultElement.contentOrNull!!.toBoolean()
+                    }
+                } else {
+                    null // 处理 "result" 不是布尔值或字段不存在的情况
+                }
+                if(resultValue == true){
+                    tradeLogic.acceptTrade()
+                    otherCiv.addNotification("[${civInfo.civName}] has accepted your trade request", NotificationCategory.Trade, NotificationIcon.Trade, civInfo.civName)
+                }else{
+//                     val counteroffer = getCounteroffer(civInfo, tradeRequest)
+//                     if (counteroffer != null) {
+//                         otherCiv.addNotification("[${civInfo.civName}] has made a counteroffer to your trade request", NotificationCategory.Trade, NotificationIcon.Trade, civInfo.civName)
+//                         otherCiv.tradeRequests.add(counteroffer)
+//                     } else
+                        tradeRequest.decline(civInfo)
+                }
             }
+            else{
+                if (TradeEvaluation().isTradeAcceptable(tradeLogic.currentTrade, civInfo, otherCiv)) {
+                    tradeLogic.acceptTrade()
+                    otherCiv.addNotification("[${civInfo.civName}] has accepted your trade request", NotificationCategory.Trade, NotificationIcon.Trade, civInfo.civName)
+                } else {
+                    val counteroffer = getCounteroffer(civInfo, tradeRequest)
+                    if (counteroffer != null) {
+                        otherCiv.addNotification("[${civInfo.civName}] has made a counteroffer to your trade request", NotificationCategory.Trade, NotificationIcon.Trade, civInfo.civName)
+                        otherCiv.tradeRequests.add(counteroffer)
+                    } else
+                        tradeRequest.decline(civInfo)
+                }
+            }
+
         }
         civInfo.tradeRequests.clear()
     }
@@ -198,28 +236,61 @@ object TradeAutomation {
 
     private fun potentialLuxuryTrades(civInfo: Civilization, otherCivInfo: Civilization): ArrayList<Trade> {
         val tradeLogic = TradeLogic(civInfo, otherCivInfo)
-        val ourTradableLuxuryResources = tradeLogic.ourAvailableOffers
-            .filter { it.type == TradeType.Luxury_Resource && it.amount > 1 }
-        val theirTradableLuxuryResources = tradeLogic.theirAvailableOffers
-            .filter { it.type == TradeType.Luxury_Resource && it.amount > 1 }
-        val weHaveTheyDont = ourTradableLuxuryResources
-            .filter { resource ->
-                tradeLogic.theirAvailableOffers
-                    .none { it.name == resource.name && it.type == TradeType.Luxury_Resource }
+        if (DebugUtils.NEED_POST){
+            val contentData = ContentData_three("buy_luxury", civInfo.civName,otherCivInfo.civName)
+            val jsonString = Json.encodeToString(contentData)
+            val postRequestResult = sendPostRequest("http://127.0.0.1:2337/get_tools_buy_luxury", jsonString)
+            val jsonObject = Json.parseToJsonElement(postRequestResult)
+            val resultElement = jsonObject.jsonObject["result"]
+            val goldElement = jsonObject.jsonObject["gold"]?.jsonPrimitive?.intOrNull
+            val luxuryElement = jsonObject.jsonObject["luxury"]?.jsonPrimitive?.content
+            val resultValue: Boolean? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+                resultElement.contentOrNull!!.toBoolean() // 尝试将内容转换为布尔值
+            } else {
+                null // 处理 "result" 不是布尔值或字段不存在的情况
             }
-        val theyHaveWeDont = theirTradableLuxuryResources
-            .filter { resource ->
-                tradeLogic.ourAvailableOffers
-                    .none { it.name == resource.name && it.type == TradeType.Luxury_Resource }
-            }.sortedBy { civInfo.cities.count { city -> city.demandedResource == it.name } } // Prioritize resources that get WLTKD
-        val trades = ArrayList<Trade>()
-        for (i in 0..min(weHaveTheyDont.lastIndex, theyHaveWeDont.lastIndex)) {
-            val trade = Trade()
-            trade.ourOffers.add(weHaveTheyDont[i].copy(amount = 1))
-            trade.theirOffers.add(theyHaveWeDont[i].copy(amount = 1))
-            trades.add(trade)
+            val trades = ArrayList<Trade>()
+            if(resultValue == true){
+                val ourTradableLuxuryResources = tradeLogic.ourAvailableOffers
+                    .filter { it.type == TradeType.Gold_Per_Turn && it.amount > goldElement!! }
+                val theirTradableLuxuryResources = tradeLogic.theirAvailableOffers
+                    .filter { it.name == luxuryElement &&it.type == TradeType.Luxury_Resource && it.amount > 1 }
+                if (ourTradableLuxuryResources.isNotEmpty() && theirTradableLuxuryResources.isNotEmpty()) {
+                    val trade = Trade()
+                    trade.ourOffers.add(ourTradableLuxuryResources[0].copy(amount = goldElement!!))
+                    trade.theirOffers.add(theirTradableLuxuryResources[0].copy(amount = 1))
+                    trades.add(trade)
+                    return trades
+                }
+            }
+            return trades
+
         }
-        return trades
+        else{
+            val ourTradableLuxuryResources = tradeLogic.ourAvailableOffers
+                .filter { it.type == TradeType.Luxury_Resource && it.amount > 1 }
+            val theirTradableLuxuryResources = tradeLogic.theirAvailableOffers
+                .filter { it.type == TradeType.Luxury_Resource && it.amount > 1 }
+            val weHaveTheyDont = ourTradableLuxuryResources
+                .filter { resource ->
+                    tradeLogic.theirAvailableOffers
+                        .none { it.name == resource.name && it.type == TradeType.Luxury_Resource }
+                }
+            val theyHaveWeDont = theirTradableLuxuryResources
+                .filter { resource ->
+                    tradeLogic.ourAvailableOffers
+                        .none { it.name == resource.name && it.type == TradeType.Luxury_Resource }
+                }.sortedBy { civInfo.cities.count { city -> city.demandedResource == it.name } } // Prioritize resources that get WLTKD
+            val trades = ArrayList<Trade>()
+            for (i in 0..min(weHaveTheyDont.lastIndex, theyHaveWeDont.lastIndex)) {
+                val trade = Trade()
+                trade.ourOffers.add(weHaveTheyDont[i].copy(amount = 1))
+                trade.theirOffers.add(theyHaveWeDont[i].copy(amount = 1))
+                trades.add(trade)
+            }
+            return trades
+        }
+
     }
 
 }

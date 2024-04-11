@@ -19,12 +19,12 @@ object DebugUtils {
      *  Does not update World View changes until finished.
      *  Set to 0 to disable.
      */
-    var SIMULATE_UNTIL_TURN: Int = 10
+    var SIMULATE_UNTIL_TURN: Int = 1
 
     var SIMULATEING: Boolean = false
 
-    var NEED_POST: Boolean = false
+    var NEED_POST: Boolean = true
 
-    var Active_Diplomacy:Boolean = false
+    var Active_Diplomacy:Boolean = true
 
 }

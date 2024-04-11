@@ -13,6 +13,7 @@ import com.unciv.logic.civilization.diplomacy.DiplomacyFlags
 import com.unciv.logic.civilization.diplomacy.DiplomaticModifiers
 import com.unciv.logic.civilization.diplomacy.DiplomaticStatus
 import com.unciv.logic.civilization.diplomacy.RelationshipLevel
+import com.unciv.logic.files.UncivFiles
 import com.unciv.logic.map.mapunit.MapUnit
 import com.unciv.models.ruleset.MilestoneType
 import com.unciv.models.ruleset.ModOptionsConstants
@@ -27,6 +28,11 @@ import com.unciv.models.ruleset.unit.BaseUnit
 import com.unciv.models.stats.Stat
 import com.unciv.ui.screens.victoryscreen.RankingType
 import com.unciv.utils.DebugUtils
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
 import kotlin.random.Random
 
 object NextTurnAutomation {
@@ -35,32 +41,36 @@ object NextTurnAutomation {
     fun automateCivMoves(civInfo: Civilization) {
         if (civInfo.isBarbarian()) return BarbarianAutomation(civInfo).automate()
 
-        respondToPopupAlerts(civInfo)
-        TradeAutomation.respondToTradeRequests(civInfo)//
+        if (civInfo.gameInfo.turns % 5 == 0){
+            respondToPopupAlerts(civInfo)
+            TradeAutomation.respondToTradeRequests(civInfo)//
 
-        if (civInfo.isMajorCiv()) {
-            if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
-                if (DebugUtils.Active_Diplomacy) {
-                    DiplomacyAutomation.declareWar(civInfo)
-                    DiplomacyAutomation.offerPeaceTreaty(civInfo)
-                    DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)
+
+            if (civInfo.isMajorCiv()) {
+                if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
+                    if (DebugUtils.Active_Diplomacy) {
+                        DiplomacyAutomation.declareWar(civInfo)
+                        DiplomacyAutomation.offerPeaceTreaty(civInfo)
+                        DiplomacyAutomation.offerDeclarationOfFriendship(civInfo)
+                    }
                 }
+                if (civInfo.gameInfo.isReligionEnabled()) {
+                    ReligionAutomation.spendFaithOnReligion(civInfo)//
+                }
+                if (DebugUtils.Active_Diplomacy) {
+                    DiplomacyAutomation.offerOpenBorders(civInfo)
+                    DiplomacyAutomation.offerResearchAgreement(civInfo)
+                    DiplomacyAutomation.offerDefensivePact(civInfo)
+                }
+                TradeAutomation.exchangeLuxuries(civInfo)
+                issueRequests(civInfo)
+                adoptPolicy(civInfo)  // todo can take a second - why?
+                freeUpSpaceResources(civInfo)
+            } else {
+                civInfo.cityStateFunctions.getFreeTechForCityState()
+                civInfo.cityStateFunctions.updateDiplomaticRelationshipForCityState()
             }
-            if (civInfo.gameInfo.isReligionEnabled()) {
-                ReligionAutomation.spendFaithOnReligion(civInfo)//
-            }
-            if (DebugUtils.Active_Diplomacy) {
-                DiplomacyAutomation.offerOpenBorders(civInfo)
-                DiplomacyAutomation.offerResearchAgreement(civInfo)
-                DiplomacyAutomation.offerDefensivePact(civInfo)
-            }
-            TradeAutomation.exchangeLuxuries(civInfo)
-            issueRequests(civInfo)
-            adoptPolicy(civInfo)  // todo can take a second - why?
-            freeUpSpaceResources(civInfo)
-        } else {
-            civInfo.cityStateFunctions.getFreeTechForCityState()
-            civInfo.cityStateFunctions.updateDiplomaticRelationshipForCityState()
+
         }
 
         chooseTechToResearch(civInfo)
@@ -147,6 +157,12 @@ object NextTurnAutomation {
         }
     }
     private fun respondToPopupAlerts(civInfo: Civilization) {
+        val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
+        ///该回合请求使用哪几种技能
+        val contentData = ContentData_two(content, civInfo.civName)
+        val jsonString = Json.encodeToString(contentData)
+        val postRequestResult = sendPostRequest("http://127.0.0.1:2337/use_tools", jsonString)
+        ///
         for (popupAlert in civInfo.popupAlerts.toList()) { // toList because this can trigger other things that give alerts, like Golden Age
             if (popupAlert.type == AlertType.DemandToStopSettlingCitiesNear) {  // we're called upon to make a decision
                 val demandingCiv = civInfo.gameInfo.getCivilization(popupAlert.value)
@@ -158,14 +174,57 @@ object NextTurnAutomation {
             if (popupAlert.type == AlertType.DeclarationOfFriendship) {
                 val requestingCiv = civInfo.gameInfo.getCivilization(popupAlert.value)
                 val diploManager = civInfo.getDiplomacyManager(requestingCiv)
-                if (civInfo.diplomacyFunctions.canSignDeclarationOfFriendshipWith(requestingCiv)
-                    && DiplomacyAutomation.wantsToSignDeclarationOfFrienship(civInfo,requestingCiv)) {
-                    diploManager.signDeclarationOfFriendship()
-                    requestingCiv.addNotification("We have signed a Declaration of Friendship with [${civInfo.civName}]!", NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
-                } else  {
-                    diploManager.otherCivDiplomacy().setFlag(DiplomacyFlags.DeclinedDeclarationOfFriendship, 10)
-                    requestingCiv.addNotification("[${civInfo.civName}] has denied our Declaration of Friendship!", NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
+                if (DebugUtils.NEED_POST) {
+                    val contentData =
+                        ContentData_three(content, civInfo.civName, requestingCiv.civName)
+                    val jsonString = Json.encodeToString(contentData)
+                    val postRequestResult = sendPostRequest(
+                        "http://127.0.0.1:2337/wantsToSignDeclarationOfFrienship",
+                        jsonString
+                    )
+                    val jsonObject = Json.parseToJsonElement(postRequestResult)
+                    val resultElement = jsonObject.jsonObject["result"]
+                    val resultValue: Boolean? =
+                        if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+                            if (resultElement.contentOrNull == "yes") {
+                                true
+                            } else {
+                                resultElement.contentOrNull!!.toBoolean()
+                            }
+                        } else {
+                            null // 处理 "result" 不是布尔值或字段不存在的情况
+                        }
+                    if (resultValue == true) {
+                        diploManager.signDeclarationOfFriendship()
+                        requestingCiv.addNotification(
+                            "We have signed a Declaration of Friendship with [${civInfo.civName}]!",
+                            NotificationCategory.Diplomacy,
+                            NotificationIcon.Diplomacy,
+                            civInfo.civName
+                        )
+                    } else {
+                        diploManager.otherCivDiplomacy()
+                            .setFlag(DiplomacyFlags.DeclinedDeclarationOfFriendship, 10)
+                        requestingCiv.addNotification(
+                            "[${civInfo.civName}] has denied our Declaration of Friendship!",
+                            NotificationCategory.Diplomacy,
+                            NotificationIcon.Diplomacy,
+                            civInfo.civName
+                        )
+                    }
                 }
+                else{
+                    if (civInfo.diplomacyFunctions.canSignDeclarationOfFriendshipWith(requestingCiv)
+                        && DiplomacyAutomation.wantsToSignDeclarationOfFrienship(civInfo,requestingCiv)) {
+                        diploManager.signDeclarationOfFriendship()
+                        requestingCiv.addNotification("We have signed a Declaration of Friendship with [${civInfo.civName}]!", NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
+                    } else  {
+                        diploManager.otherCivDiplomacy().setFlag(DiplomacyFlags.DeclinedDeclarationOfFriendship, 10)
+                        requestingCiv.addNotification("[${civInfo.civName}] has denied our Declaration of Friendship!", NotificationCategory.Diplomacy, NotificationIcon.Diplomacy, civInfo.civName)
+                    }
+                }
+
+
 
             }
         }
