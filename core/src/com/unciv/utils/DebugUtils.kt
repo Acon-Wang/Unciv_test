@@ -27,4 +27,6 @@ object DebugUtils {
 
     var Active_Diplomacy:Boolean = true
 
+    var NEED_LLM_NAME:String = "Aztecs"
+
 }

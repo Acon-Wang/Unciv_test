@@ -178,7 +178,7 @@ object NextTurnAutomation {
             if (popupAlert.type == AlertType.DeclarationOfFriendship) {
                 val requestingCiv = civInfo.gameInfo.getCivilization(popupAlert.value)
                 val diploManager = civInfo.getDiplomacyManager(requestingCiv)
-                if (DebugUtils.NEED_POST) {
+                if (DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName) {
                     val contentData =
                         ContentData_three(content, civInfo.civName, requestingCiv.civName)
                     val jsonString = Json.encodeToString(contentData)
