@@ -206,7 +206,42 @@ object TradeAutomation {
         return TradeRequest(civInfo.civName, tradeLogic.currentTrade.reverse())
     }
 
+     fun propose_trade(civInfo: Civilization){
+//          val tradeLogic = TradeLogic(civInfo, otherCivInfo)
+         val contentData = ContentData_two("common_enemy", civInfo.civName)
+         val jsonString = Json.encodeToString(contentData)
+         val postRequestResult = sendPostRequest("http://127.0.0.1:2337/get_tools_common_enemy", jsonString)
+         val jsonObject = Json.parseToJsonElement(postRequestResult)
+         val resultElement = jsonObject.jsonObject["result"]
+         val resultValue: Boolean? = if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+             resultElement.contentOrNull!!.toBoolean() // 尝试将内容转换为布尔值
+         } else {
+             null // 处理 "result" 不是布尔值或字段不存在的情况
+         }
+         if (resultValue == true){
+             val tocivElement = jsonObject.jsonObject["to_civ"]?.jsonPrimitive?.content
+             val enemycivElement = jsonObject.jsonObject["enemy_civ"]?.jsonPrimitive?.content
+             val trade = Trade()
+             var otherCiv = civInfo.gameInfo.getCivilization(tocivElement!!)
+             var enemyCiv = civInfo.gameInfo.getCivilization(enemycivElement!!)
+             //如果已经在交战中则不需要再次宣战
+             if (civInfo.isAtWarWith(enemyCiv)){
+                 var theiroffer = TradeOffer(name = enemycivElement!!, type = TradeType.WarDeclaration)
+                 trade.theirOffers.add(theiroffer)
+                 val tradeRequest = TradeRequest(civInfo.civName, trade.reverse())
+                 otherCiv.tradeRequests.add(tradeRequest)
+             }
+             else{
+                 var ouroffer = TradeOffer(name = enemycivElement!!, type = TradeType.WarDeclaration)
+                 var theiroffer = TradeOffer(name = enemycivElement!!, type = TradeType.WarDeclaration)
+                 trade.ourOffers.add(ouroffer)
+                 trade.theirOffers.add(theiroffer)
+                 val tradeRequest = TradeRequest(civInfo.civName, trade.reverse())
+                 otherCiv.tradeRequests.add(tradeRequest)
+             }
 
+         }
+     }
      fun exchangeLuxuries(civInfo: Civilization) {
         val knownCivs = civInfo.getKnownCivs()
 

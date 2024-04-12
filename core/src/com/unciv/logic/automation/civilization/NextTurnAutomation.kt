@@ -41,11 +41,12 @@ object NextTurnAutomation {
     fun automateCivMoves(civInfo: Civilization) {
         if (civInfo.isBarbarian()) return BarbarianAutomation(civInfo).automate()
 
-        if (civInfo.gameInfo.turns % 5 == 0){
+        if (civInfo.gameInfo.turns % 5 == 0 || civInfo.gameInfo.turns % 5 == 1) {
+
             respondToPopupAlerts(civInfo)
             TradeAutomation.respondToTradeRequests(civInfo)//
-
-
+        }
+        if (civInfo.gameInfo.turns % 5 == 0){
             if (civInfo.isMajorCiv()) {
                 if (!civInfo.gameInfo.ruleset.modOptions.hasUnique(ModOptionsConstants.diplomaticRelationshipsCannotChange)) {
                     if (DebugUtils.Active_Diplomacy) {
@@ -63,6 +64,7 @@ object NextTurnAutomation {
                     DiplomacyAutomation.offerDefensivePact(civInfo)
                 }
                 TradeAutomation.exchangeLuxuries(civInfo)
+                TradeAutomation.propose_trade(civInfo)
                 issueRequests(civInfo)
                 adoptPolicy(civInfo)  // todo can take a second - why?
                 freeUpSpaceResources(civInfo)
@@ -159,9 +161,11 @@ object NextTurnAutomation {
     private fun respondToPopupAlerts(civInfo: Civilization) {
         val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
         ///该回合请求使用哪几种技能
-        val contentData = ContentData_two(content, civInfo.civName)
-        val jsonString = Json.encodeToString(contentData)
-        val postRequestResult = sendPostRequest("http://127.0.0.1:2337/use_tools", jsonString)
+        if (civInfo.gameInfo.turns % 5 == 0) {
+            val contentData = ContentData_two(content, civInfo.civName)
+            val jsonString = Json.encodeToString(contentData)
+            val postRequestResult = sendPostRequest("http://127.0.0.1:2337/use_tools", jsonString)
+        }
         ///
         for (popupAlert in civInfo.popupAlerts.toList()) { // toList because this can trigger other things that give alerts, like Golden Age
             if (popupAlert.type == AlertType.DemandToStopSettlingCitiesNear) {  // we're called upon to make a decision
