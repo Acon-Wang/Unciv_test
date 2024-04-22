@@ -55,7 +55,7 @@ object DiplomacyAutomation {
         for (otherCiv in civsThatWeCanDeclareFriendshipWith) {
             // Default setting is 2, this will be changed according to different civ.
             //random随机符合
-            if (post&&DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+            if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
                 val contentData = ContentData_three("declare_friendship", civInfo.civName,otherCiv.civName)
                 val jsonString = Json.encodeToString(contentData)
 //                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/wantsToSignDeclarationOfFrienship", jsonString)
@@ -223,7 +223,7 @@ object DiplomacyAutomation {
         for (otherCiv in civsThatWeCanOpenBordersWith) {
             // Default setting is 3, this will be changed according to different civ.
             //random随机符合
-            if(post&&DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+            if(post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
 
                 val contentData = ContentData_three("open_borders", civInfo.civName,otherCiv.civName)
                 val jsonString = Json.encodeToString(contentData)
@@ -313,7 +313,7 @@ object DiplomacyAutomation {
     internal fun offerResearchAgreement(civInfo: Civilization,post: Boolean=true) {
         if (!civInfo.diplomacyFunctions.canSignResearchAgreement()) return // don't waste your time
 //         val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
-        if (post&&DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+        if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
             val canSignResearchAgreementCiv = civInfo.getKnownCivs()
                 .filter {
 //                 civInfo.diplomacyFunctions.canSignResearchAgreementsWith(it)
@@ -364,12 +364,11 @@ object DiplomacyAutomation {
             .filter {
                 civInfo.diplomacyFunctions.canSignDefensivePactWith(it)
                     && !civInfo.getDiplomacyManager(it).hasFlag(DiplomacyFlags.DeclinedDefensivePact)
-                    && civInfo.getDiplomacyManager(it).relationshipIgnoreAfraid() == RelationshipLevel.Ally
             }
-
+//             && civInfo.getDiplomacyManager(it).relationshipIgnoreAfraid() == RelationshipLevel.Ally
         for (otherCiv in canSignDefensivePactCiv) {
             // Default setting is 3, this will be changed according to different civ.
-            if (post&&DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+            if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
 //                 val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
                 val contentData = ContentData_three("form_ally", civInfo.civName,otherCiv.civName)
                 val jsonString = Json.encodeToString(contentData)
@@ -519,9 +518,9 @@ object DiplomacyAutomation {
      * 通过一定的规则，ai去挑选motivation最大的城市发起战争，其中避免了ai过早发起战争。
      */
     internal fun declareWar(civInfo: Civilization,post: Boolean = true) {
-        if (civInfo.wantsToFocusOn(Victory.Focus.Culture)) return
+//         if (civInfo.wantsToFocusOn(Victory.Focus.Culture)) return
         if (civInfo.cities.isEmpty() || civInfo.diplomacy.isEmpty()) return
-        if (civInfo.isAtWar() || civInfo.getHappiness() <= 0) return
+//         if (civInfo.isAtWar() || civInfo.getHappiness() <= 0) return
 
         val ourMilitaryUnits = civInfo.units.getCivUnits().filter { !it.isCivilian() }.count()
         if (ourMilitaryUnits < civInfo.cities.size) return
@@ -529,9 +528,14 @@ object DiplomacyAutomation {
         if (civInfo.cities.size < 3) return // FAR too early for that what are you thinking!
 
         //evaluate war
+//         val enemyCivs = civInfo.getKnownCivs()
+//             .filterNot {
+//                 it == civInfo || it.cities.isEmpty() || !civInfo.getDiplomacyManager(it).canDeclareWar()
+//                     || it.cities.none { city -> civInfo.hasExplored(city.getCenterTile()) }
+//             }
         val enemyCivs = civInfo.getKnownCivs()
             .filterNot {
-                it == civInfo || it.cities.isEmpty() || !civInfo.getDiplomacyManager(it).canDeclareWar()
+                it == civInfo || it.cities.isEmpty()
                     || it.cities.none { city -> civInfo.hasExplored(city.getCenterTile()) }
             }
         // If the AI declares war on a civ without knowing the location of any cities, it'll just keep amassing an army and not sending it anywhere,
@@ -540,7 +544,7 @@ object DiplomacyAutomation {
         if (enemyCivs.none()) return
 
         val minMotivationToAttack = 20
-        if (post&&DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+        if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
 //             val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
 //             var max_name = ""
 //             var max_score = 0
@@ -900,7 +904,7 @@ object DiplomacyAutomation {
             .filter { it.tradeRequests.none { tradeRequest -> tradeRequest.requestingCiv == civInfo.civName && tradeRequest.trade.isPeaceTreaty() } }
 
         for (enemy in enemiesCiv) {
-            if (post&&DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+            if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
 //                 val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
                 val contentData = ContentData_three("seek_peace", civInfo.civName,enemy.civName)
                 val jsonString = Json.encodeToString(contentData)

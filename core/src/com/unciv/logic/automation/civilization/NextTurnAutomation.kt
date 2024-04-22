@@ -161,7 +161,7 @@ object NextTurnAutomation {
     private fun respondToPopupAlerts(civInfo: Civilization) {
         val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
         ///该回合请求使用哪几种技能
-        if (civInfo.gameInfo.turns % 5 == 0&&DebugUtils.NEED_LLM_NAME==civInfo.civName) {
+        if (civInfo.gameInfo.turns % 5 == 0 && DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING) {
             val contentData = ContentData_two(content, civInfo.civName)
             val jsonString = Json.encodeToString(contentData)
             val postRequestResult = sendPostRequest("http://127.0.0.1:2337/use_tools", jsonString)
@@ -178,7 +178,7 @@ object NextTurnAutomation {
             if (popupAlert.type == AlertType.DeclarationOfFriendship) {
                 val requestingCiv = civInfo.gameInfo.getCivilization(popupAlert.value)
                 val diploManager = civInfo.getDiplomacyManager(requestingCiv)
-                if (DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName) {
+                if (DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING) {
                     val contentData =
                         ContentData_three(content, civInfo.civName, requestingCiv.civName)
                     val jsonString = Json.encodeToString(contentData)

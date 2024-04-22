@@ -42,7 +42,7 @@ object TradeAutomation {
              * the same resource to ANOTHER civ in this turn. Complicated!
              */
             civInfo.tradeRequests.remove(tradeRequest)
-            if (DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+            if (DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
                 val contentData = ContentData_three(content, civInfo.civName,otherCiv.civName)
                 val jsonString = Json.encodeToString(contentData)
                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/getTradeAcceptability", jsonString)
@@ -271,7 +271,7 @@ object TradeAutomation {
 
     private fun potentialLuxuryTrades(civInfo: Civilization, otherCivInfo: Civilization): ArrayList<Trade> {
         val tradeLogic = TradeLogic(civInfo, otherCivInfo)
-        if (DebugUtils.NEED_POST&&DebugUtils.NEED_LLM_NAME==civInfo.civName){
+        if (DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
             val contentData = ContentData_three("buy_luxury", civInfo.civName,otherCivInfo.civName)
             val jsonString = Json.encodeToString(contentData)
             val postRequestResult = sendPostRequest("http://127.0.0.1:2337/get_tools_buy_luxury", jsonString)
