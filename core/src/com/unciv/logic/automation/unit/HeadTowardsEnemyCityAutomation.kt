@@ -83,7 +83,7 @@ object HeadTowardsEnemyCityAutomation {
         if (city != null) {
             val x = city.getCenterTile().position.x
             val y= city.getCenterTile().position.y
-            return "x,y"
+            return "$x,$y"
         }
         return "None"
     }
