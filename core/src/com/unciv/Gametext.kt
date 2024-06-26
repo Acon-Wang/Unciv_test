@@ -15,7 +15,7 @@ open class Gametext(){
         val gameSettings = GameSettings()
         uncivGame.settings = gameSettings
         if (content != null) {
-            val game: GameInfo = UncivFiles.gameInfoFromString_easy(content)
+            val game: GameInfo = UncivFiles.gameInfoFromString_civsim(content)
             uncivGame.gameInfo = game
             UncivGame.Current = uncivGame
             game.nextTenTurn(PreTurns,Diplomacy_flag,workerAuto,false)

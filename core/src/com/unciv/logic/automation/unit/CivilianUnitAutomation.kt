@@ -134,7 +134,7 @@ object CivilianUnitAutomation {
 
         return // The AI doesn't know how to handle unknown civilian units
     }
-    fun automateCivilianUnit_modify(unit: MapUnit,workerAuto:Boolean) {
+    fun automateCivilianUnit_civsim(unit: MapUnit,workerAuto:Boolean) {
 
         if (unit.NumOfWokerUse >=3 && unit.wokeruseing <= 1 ){
             unit.destroy()
@@ -250,7 +250,7 @@ object CivilianUnitAutomation {
             val improvementCanBePlacedEventually =
                 SpecificUnitAutomation.automateImprovementPlacer(unit)
             if (!improvementCanBePlacedEventually)
-                UnitActions.invokeUnitAction_modify(unit, UnitActionType.StartGoldenAge)
+                UnitActions.invokeUnitAction_civsim(unit, UnitActionType.StartGoldenAge)
         }
 
         // TODO: The AI tends to have a lot of great generals. Maybe there should be a cutoff

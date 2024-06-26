@@ -230,7 +230,7 @@ object UnitAutomation {
         if (unit.civ.isCityState())
             wander(unit, stayInTerritory = true)
     }
-    fun automateUnitMoves_easy(unit: MapUnit,id:Int,post:Boolean) {
+    fun automateUnitMoves_civsim(unit: MapUnit,id:Int,post:Boolean) {
         check(!unit.civ.isBarbarian()) { "Barbarians is not allowed here." }
 
         // Might die next turn - move!
@@ -293,8 +293,8 @@ object UnitAutomation {
         if (tryTakeBackCapturedCity(unit)) return
 
         // Focus all units without a specific target on the enemy city closest to one of our cities
-        if (post&& !DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
-            if (HeadTowardsEnemyCityAutomation.tryHeadTowardsEnemyCity_modify(unit,id)) return
+        if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
+            if (HeadTowardsEnemyCityAutomation.tryHeadTowardsEnemyCity_civsim(unit,id)) return
         }
         else
         {
@@ -324,7 +324,7 @@ object UnitAutomation {
             wander(unit, stayInTerritory = true)
     }
 
-    fun automateUnitMoves_modify(unit: MapUnit,id:Int,workerAuto:Boolean,post: Boolean) {
+    fun automateUnitMoves_civsim(unit: MapUnit,id:Int,workerAuto:Boolean,post: Boolean) {
         check(!unit.civ.isBarbarian()) { "Barbarians is not allowed here." }
 
         // Might die next turn - move!
@@ -332,7 +332,7 @@ object UnitAutomation {
 
 
         if (unit.isCivilian()) {
-            CivilianUnitAutomation.automateCivilianUnit_modify(unit,workerAuto)
+            CivilianUnitAutomation.automateCivilianUnit_civsim(unit,workerAuto)
             return
         }
 
@@ -388,7 +388,7 @@ object UnitAutomation {
 
         // Focus all units without a specific target on the enemy city closest to one of our cities
         if (post){
-            if (HeadTowardsEnemyCityAutomation.tryHeadTowardsEnemyCity_modify(unit,id)) return
+            if (HeadTowardsEnemyCityAutomation.tryHeadTowardsEnemyCity_civsim(unit,id)) return
         }
         else
         {

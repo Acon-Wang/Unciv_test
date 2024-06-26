@@ -138,7 +138,7 @@ class DiplomacyFunctions(val civInfo: Civilization){
             && civInfo.gold >= cost && otherCiv.gold >= cost
     }
 
-    fun canSignResearchAgreementsWith_easy(otherCiv: Civilization):Pair<Boolean, Map<String, List<String>>> {
+    fun canSignResearchAgreementsWith_civsim(otherCiv: Civilization):Pair<Boolean, Map<String, List<String>>> {
         val cost = getResearchAgreementCost(otherCiv)
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()

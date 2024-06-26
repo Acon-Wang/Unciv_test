@@ -7,7 +7,7 @@ object DebugUtils {
      * Remember to turn this to false before commit and upload!
      * Or use the "secret" debug page of the options popup instead.
      */
-    var VISIBLE_MAP: Boolean = true
+    var VISIBLE_MAP: Boolean = false
 
     /** This flag paints the tile coordinates directly onto the map tiles. */
     var SHOW_TILE_COORDS: Boolean = false
@@ -19,14 +19,14 @@ object DebugUtils {
      *  Does not update World View changes until finished.
      *  Set to 0 to disable.
      */
-    var SIMULATE_UNTIL_TURN: Int = 5
+    var SIMULATE_UNTIL_TURN: Int = 1
 
     var SIMULATEING: Boolean = false
 
     var NEED_POST: Boolean = true
 
-    var Active_Diplomacy:Boolean = true
+    var NEED_GameInfo: Boolean = false
 
-    var NEED_LLM_NAME:String = "Aztecs"
+    var Active_Diplomacy:Boolean = true
 
 }

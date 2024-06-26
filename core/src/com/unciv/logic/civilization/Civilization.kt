@@ -297,7 +297,7 @@ class Civilization : IsPartOfGameInfoSerialization {
     }
 
 
-
+    fun getCity(cityName: String): City? = cities.firstOrNull { it.name == cityName }
     //region pure functions
     fun getDifficulty(): Difficulty {
         if (isHuman()) return gameInfo.getDifficulty()
@@ -644,6 +644,7 @@ class Civilization : IsPartOfGameInfoSerialization {
             }.toDouble()
         scoreBreakdown["Technologies"] = tech.getNumberOfTechsResearched() * 4.toDouble()
         scoreBreakdown["Future Tech"] = tech.repeatingTechsResearched * 10.toDouble()
+        scoreBreakdown["Force"] = getMilitaryMight().toDouble()*0.1
 
         return scoreBreakdown
     }

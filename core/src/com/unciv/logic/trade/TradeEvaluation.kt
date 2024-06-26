@@ -62,8 +62,8 @@ class TradeEvaluation {
     fun isTradeAcceptable(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Boolean {
         return getTradeAcceptability(trade, evaluator, tradePartner) >= 0
     }
-    fun isTradeAcceptable_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean, Map<String, List<String>>> {
-        return getTradeAcceptability_easy(trade, evaluator, tradePartner)
+    fun isTradeAcceptable_civsim(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean, Map<String, List<String>>> {
+        return getTradeAcceptability_civsim(trade, evaluator, tradePartner)
     }
 
     fun getTradeAcceptability(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Int {
@@ -96,7 +96,7 @@ class TradeEvaluation {
 
         return sumOfTheirOffers - sumOfOurOffers
     }
-    fun getTradeAcceptability_easy(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean, Map<String, List<String>>> {
+    fun getTradeAcceptability_civsim(trade: Trade, evaluator: Civilization, tradePartner: Civilization): Pair<Boolean, Map<String, List<String>>> {
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
         var motivation = 0

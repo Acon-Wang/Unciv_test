@@ -55,9 +55,17 @@ object DiplomacyAutomation {
         for (otherCiv in civsThatWeCanDeclareFriendshipWith) {
             // Default setting is 2, this will be changed according to different civ.
             //random随机符合
+            var jsonString: String
             if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
-                val contentData = ContentData_three("declare_friendship", civInfo.civName,otherCiv.civName)
-                val jsonString = Json.encodeToString(contentData)
+                if (DebugUtils.NEED_GameInfo){
+                    val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
+                    var contentData = ContentData_four(content, civInfo.civName,otherCiv.civName,"change_closeness")
+                    jsonString = Json.encodeToString(contentData)
+                }
+                else {
+                    var contentData = ContentData_three("change_closeness", civInfo.civName, otherCiv.civName)
+                    jsonString = Json.encodeToString(contentData)
+                }
 //                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/wantsToSignDeclarationOfFrienship", jsonString)
                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/get_tools", jsonString)
                 val jsonObject = Json.parseToJsonElement(postRequestResult)
@@ -136,7 +144,7 @@ object DiplomacyAutomation {
 
         return motivation > 0
     }
-    fun wantsToSignDeclarationOfFrienship_easy(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean, Map<String, List<String>>> {
+    fun wantsToSignDeclarationOfFrienship_civsim(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean, Map<String, List<String>>> {
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
         val diploManager = civInfo.getDiplomacyManager(otherCiv)
@@ -220,13 +228,22 @@ object DiplomacyAutomation {
                 && !civInfo.getDiplomacyManager(it).hasFlag(DiplomacyFlags.DeclinedOpenBorders) }
             .sortedByDescending { it.getDiplomacyManager(civInfo).relationshipLevel() }.toList()
 //         val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
+        var jsonString: String
         for (otherCiv in civsThatWeCanOpenBordersWith) {
             // Default setting is 3, this will be changed according to different civ.
             //random随机符合
             if(post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
-
-                val contentData = ContentData_three("open_borders", civInfo.civName,otherCiv.civName)
-                val jsonString = Json.encodeToString(contentData)
+                if (DebugUtils.NEED_GameInfo) {
+                    val content = UncivFiles.gameInfoToString(civInfo.gameInfo, false, false)
+                    var contentData =
+                        ContentData_four(content, civInfo.civName, otherCiv.civName, "open_borders")
+                    jsonString = Json.encodeToString(contentData)
+                }
+                else {
+                    val contentData =
+                        ContentData_three("open_borders", civInfo.civName, otherCiv.civName)
+                    jsonString = Json.encodeToString(contentData)
+                }
                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/get_tools", jsonString)
                 val jsonObject = Json.parseToJsonElement(postRequestResult)
                 val resultElement = jsonObject.jsonObject["result"]
@@ -269,7 +286,7 @@ object DiplomacyAutomation {
             return false
         return true
     }
-    fun wantsToOpenBorders_easy(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean, Map<String, List<String>>>{
+    fun wantsToOpenBorders_civsim(civInfo: Civilization, otherCiv: Civilization): Pair<Boolean, Map<String, List<String>>>{
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
         var flag = 0
@@ -368,10 +385,20 @@ object DiplomacyAutomation {
 //             && civInfo.getDiplomacyManager(it).relationshipIgnoreAfraid() == RelationshipLevel.Ally
         for (otherCiv in canSignDefensivePactCiv) {
             // Default setting is 3, this will be changed according to different civ.
+            var jsonString: String
             if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
 //                 val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
-                val contentData = ContentData_three("form_ally", civInfo.civName,otherCiv.civName)
-                val jsonString = Json.encodeToString(contentData)
+                if (DebugUtils.NEED_GameInfo) {
+                    val content = UncivFiles.gameInfoToString(civInfo.gameInfo, false, false)
+                    var contentData =
+                        ContentData_four(content, civInfo.civName, otherCiv.civName, "form_ally")
+                    jsonString = Json.encodeToString(contentData)
+                }
+                else {
+                    val contentData =
+                        ContentData_three("form_ally", civInfo.civName, otherCiv.civName)
+                    jsonString = Json.encodeToString(contentData)
+                }
                 val postRequestResult = sendPostRequest("http://127.0.0.1:2337/get_tools", jsonString)
                 val jsonObject = Json.parseToJsonElement(postRequestResult)
                 val resultElement = jsonObject.jsonObject["result"]
@@ -447,7 +474,7 @@ object DiplomacyAutomation {
 
         return motivation > 0
     }
-    fun wantsToSignDefensivePact_easy(civInfo: Civilization, otherCiv: Civilization):Pair<Boolean, Map<String, List<String>>>{
+    fun wantsToSignDefensivePact_civsim(civInfo: Civilization, otherCiv: Civilization):Pair<Boolean, Map<String, List<String>>>{
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
 
@@ -544,13 +571,23 @@ object DiplomacyAutomation {
         if (enemyCivs.none()) return
 
         val minMotivationToAttack = 20
+        var jsonString: String
         if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
 //             val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
 //             var max_name = ""
 //             var max_score = 0
             for ( city in enemyCivs){
-                val contentData = ContentData_three("declare_war", civInfo.civName,city.civName)
-                val jsonString = Json.encodeToString(contentData)
+                if (DebugUtils.NEED_GameInfo) {
+                    val content = UncivFiles.gameInfoToString(civInfo.gameInfo, false, false)
+                    var contentData =
+                        ContentData_four(content, civInfo.civName, city.civName, "declare_war")
+                    jsonString = Json.encodeToString(contentData)
+                }
+                else {
+                    var contentData =
+                        ContentData_three("declare_war", civInfo.civName, city.civName)
+                    jsonString = Json.encodeToString(contentData)
+                }
                 val postRequestResult= sendPostRequest("http://127.0.0.1:2337/get_tools",jsonString)
                 val jsonObject = Json.parseToJsonElement(postRequestResult)
                 val resultElement = jsonObject.jsonObject["result"]
@@ -704,7 +741,7 @@ object DiplomacyAutomation {
 
         return motivationSoFar
     }
-    fun hasAtLeastMotivationToAttack_easy(civInfo: Civilization, otherCiv: Civilization, atLeast: Int):Pair<Boolean, Map<String, List<String>>>  {
+    fun hasAtLeastMotivationToAttack_civsim(civInfo: Civilization, otherCiv: Civilization, atLeast: Int):Pair<Boolean, Map<String, List<String>>>  {
         val modifierMap = HashMap<String, Int>()
         var Reason_consent = mutableListOf<String>()
         var Reason_reject = mutableListOf<String>()
@@ -903,11 +940,20 @@ object DiplomacyAutomation {
             // ignore civs that we have already offered peace this turn as a counteroffer to another civ's peace offer
             .filter { it.tradeRequests.none { tradeRequest -> tradeRequest.requestingCiv == civInfo.civName && tradeRequest.trade.isPeaceTreaty() } }
 
+        var jsonString: String
         for (enemy in enemiesCiv) {
             if (post&&DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING){
 //                 val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
-                val contentData = ContentData_three("seek_peace", civInfo.civName,enemy.civName)
-                val jsonString = Json.encodeToString(contentData)
+                if (DebugUtils.NEED_GameInfo) {
+                    val content = UncivFiles.gameInfoToString(civInfo.gameInfo, false, false)
+                    val contentData = ContentData_four(content, civInfo.civName, enemy.civName, "speek_peace")
+                    jsonString = Json.encodeToString(contentData)
+                }
+                else {
+                    val contentData =
+                        ContentData_three("speek_peace", civInfo.civName, enemy.civName)
+                    jsonString = Json.encodeToString(contentData)
+                }
                 val postRequestResult= sendPostRequest("http://127.0.0.1:2337/get_tools",jsonString)
                 val jsonObject = Json.parseToJsonElement(postRequestResult)
                 val resultElement = jsonObject.jsonObject["result"]
@@ -974,6 +1020,9 @@ fun sendPostRequest(url: String, postData: String): String {
 
     return response.toString()
 }
+
+@Serializable
+data class ContentData_four(val gameinfo: String, val civ1: String, val civ2: String, val skill:String)
 @Serializable
 data class ContentData_three(val gameinfo: String, val civ1: String, val civ2: String)
 @Serializable
@@ -982,9 +1031,17 @@ data class ContentData_two(val gameinfo: String, val civ1: String)
 data class ContentData_unit(val gameinfo: String, val civ1: String,val id:String)
 
 fun sendcanSignResearchAgreementsWith(content:String,civInfo1: Civilization,civInfo2: Civilization): Boolean? {
-
-        val contentData = ContentData_three(content, civInfo1.civName,civInfo2.civName)
-        val jsonString = Json.encodeToString(contentData)
+        var jsonString: String
+        if (DebugUtils.NEED_GameInfo) {
+            val gameinfo = UncivFiles.gameInfoToString(civInfo1.gameInfo,false,false)
+            val contentData = ContentData_four(gameinfo, civInfo1.civName, civInfo2.civName,content)
+            jsonString = Json.encodeToString(contentData)
+        }
+        else {
+            val contentData = ContentData_three(content, civInfo1.civName, civInfo2.civName)
+            jsonString = Json.encodeToString(contentData)
+        }
+//         val jsonString = Json.encodeToString(contentData)
         val postRequestResult= sendPostRequest("http://127.0.0.1:2337/get_tools",jsonString)
         val jsonObject = Json.parseToJsonElement(postRequestResult)
         val resultElement = jsonObject.jsonObject["result"]

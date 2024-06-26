@@ -93,7 +93,7 @@ class TurnManager(val civInfo: Civilization) {
         updateWinningCiv()
     }
 
-    fun startTurn_modify() {
+    fun startTurn_civsim() {
         if (civInfo.isSpectator()) return
 
         if (civInfo.isMajorCiv() && civInfo.isAlive()) {
@@ -361,7 +361,7 @@ class TurnManager(val civInfo: Civilization) {
 
         updateWinningCiv() // Maybe we did something this turn to win
     }
-    fun endTurn_modify() {
+    fun endTurn_civsim() {
         val notificationsLog = civInfo.notificationsLog
         val notificationsThisTurn = Civilization.NotificationsLog(civInfo.gameInfo.turns)
         notificationsThisTurn.notifications.addAll(civInfo.notifications)
@@ -429,7 +429,7 @@ class TurnManager(val civInfo: Civilization) {
         civInfo.temporaryUniques.endTurn()
 
         civInfo.goldenAges.endTurn(civInfo.getHappiness())
-        civInfo.units.getCivUnits().forEach { UnitTurnManager(it).endTurn_modify() }  // This is the most expensive part of endTurn
+        civInfo.units.getCivUnits().forEach { UnitTurnManager(it).endTurn_civsim() }  // This is the most expensive part of endTurn
         civInfo.diplomacy.values.toList().forEach { it.nextTurn() } // we copy the diplomacy values so if it changes in-loop we won't crash
         civInfo.cache.updateHasActiveEnemyMovementPenalty()
 
@@ -462,19 +462,19 @@ class TurnManager(val civInfo: Civilization) {
 
         // Do stuff
         NextTurnAutomation.automateCivMoves(civInfo)
-//         NextTurnAutomation.automateCivMoves_modify(civInfo,Diplomacy_flag)
+//         NextTurnAutomation.automateCivMoves_civsim(civInfo,Diplomacy_flag)
         // Update barbarian camps
         if (civInfo.isBarbarian() && !civInfo.gameInfo.gameParameters.noBarbarians)
             civInfo.gameInfo.barbarians.updateEncampments()
     }
-    fun automateTurn_modify(Diplomacy_flag : Boolean,workerAuto:Boolean,post:Boolean) {
+    fun automateTurn_civsim(Diplomacy_flag : Boolean,workerAuto:Boolean,post:Boolean) {
         // Defeated civs do nothing
         if (civInfo.isDefeated())
             return
 
         // Do stuff
 //         NextTurnAutomation.automateCivMoves(civInfo)
-        NextTurnAutomation.automateCivMoves_modify(civInfo,Diplomacy_flag,workerAuto,post)
+        NextTurnAutomation.automateCivMoves_civsim(civInfo,Diplomacy_flag,workerAuto,post)
         // Update barbarian camps
         if (civInfo.isBarbarian() && !civInfo.gameInfo.gameParameters.noBarbarians)
             civInfo.gameInfo.barbarians.updateEncampments()

@@ -25,7 +25,7 @@ object HeadTowardsEnemyCityAutomation {
     /**
      * 尝试去敌人城市，只专注打一个敌人
      */
-    fun tryHeadTowardsEnemyCity_modify(unit: MapUnit,id:Int): Boolean {
+    fun tryHeadTowardsEnemyCity_civsim(unit: MapUnit,id:Int): Boolean {
         if (unit.civ.cities.isEmpty()) return false
 
         val content = UncivFiles.gameInfoToString(unit.civ.gameInfo,false,false)

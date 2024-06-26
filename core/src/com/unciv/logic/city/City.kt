@@ -145,7 +145,8 @@ class City : IsPartOfGameInfoSerialization {
     fun getTiles(): Sequence<Tile> = tiles.asSequence().map { tileMap[it] }
     fun getWorkableTiles() = tilesInRange.asSequence().filter { it.getOwner() == civ }
     fun isWorked(tile: Tile) = workedTiles.contains(tile.position)
-
+    fun chooseNextConstruction_civsim() = cityConstructions.chooseNextConstruction_civsim()
+    fun chooseNextConstructionAsString_civsim():String { return cityConstructions.chooseNextConstructionAsString_civsim() }
     fun isCapital(): Boolean = cityConstructions.getBuiltBuildings().any { it.hasUnique(UniqueType.IndicatesCapital) }
     fun isCoastal(): Boolean = centerTile.isCoastalTile()
 

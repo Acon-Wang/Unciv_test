@@ -709,7 +709,13 @@ class CityConstructions : IsPartOfGameInfoSerialization {
         val newTile = Automation.getTileForConstructionImprovement(city, improvement) ?: return
         newTile.improvementFunctions.markForCreatesOneImprovement(improvement.name)
     }
+    fun chooseNextConstruction_civsim(){
+        ConstructionAutomation(this).chooseNextConstruction_civsim()
+    }
 
+    fun chooseNextConstructionAsString_civsim(): String {
+        return ConstructionAutomation(this).chooseNextConstructionAsString_civsim()
+    }
     fun canAddToQueue(construction: IConstruction) =
         !isQueueFull() &&
         construction.isBuildable(this) &&

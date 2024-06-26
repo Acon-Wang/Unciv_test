@@ -164,7 +164,7 @@ class GameSettings {
         if (DebugUtils.SIMULATEING==false)save()
         return true
     }
-    fun addCompletedTutorialTask_modify(tutorialTask: String): Boolean {
+    fun addCompletedTutorialTask_civsim(tutorialTask: String): Boolean {
         if (!tutorialTasksCompleted.add(tutorialTask)) return false
         UncivGame.Current.isTutorialTaskCollapsed = false
 //         save()

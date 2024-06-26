@@ -62,12 +62,12 @@ class UnitTurnManager(val unit: MapUnit) {
                 UniqueTriggerActivation.triggerUnitwideUnique(unique, unit)
     }
 
-    fun endTurn_modify() {
+    fun endTurn_civsim() {
         unit.movement.clearPathfindingCache()
         if (unit.currentMovement > 0
             && unit.getTile().improvementInProgress != null
             && unit.canBuildImprovement(unit.getTile().getTileImprovementInProgress()!!)
-        ) workOnImprovement_modify()
+        ) workOnImprovement_civsim()
         if (!unit.hasUnitMovedThisTurn() && unit.isFortified() && unit.turnsFortified < 2) {
             unit.turnsFortified++
         }
@@ -224,14 +224,14 @@ class UnitTurnManager(val unit: MapUnit) {
         tile.improvementInProgress = null
         tile.getCity()?.updateCitizens = true
     }
-    private fun workOnImprovement_modify() {
+    private fun workOnImprovement_civsim() {
         val tile = unit.getTile()
         if (tile.isMarkedForCreatesOneImprovement()) return
         tile.turnsToImprovement -= 1
         if (tile.turnsToImprovement != 0) return
 
         if (unit.civ.isCurrentPlayer())
-            UncivGame.Current.settings.addCompletedTutorialTask_modify("Construct an improvement")
+            UncivGame.Current.settings.addCompletedTutorialTask_civsim("Construct an improvement")
 
         val improvementInProgress = tile.improvementInProgress ?: return
         tile.changeImprovement(improvementInProgress, unit.civ)

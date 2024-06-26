@@ -64,7 +64,7 @@ object NextTurnAutomation {
                     DiplomacyAutomation.offerDefensivePact(civInfo)
                 }
                 TradeAutomation.exchangeLuxuries(civInfo)
-                TradeAutomation.propose_trade(civInfo)
+                TradeAutomation.proposeCommonEnemy(civInfo)
                 issueRequests(civInfo)
                 adoptPolicy(civInfo)  // todo can take a second - why?
                 freeUpSpaceResources(civInfo)
@@ -94,7 +94,7 @@ object NextTurnAutomation {
         tryVoteForDiplomaticVictory(civInfo)
     }
 
-    fun automateCivMoves_modify(civInfo: Civilization,Diplomacy_flag: Boolean,workerAuto:Boolean,post: Boolean) {
+    fun automateCivMoves_civsim(civInfo: Civilization,Diplomacy_flag: Boolean,workerAuto:Boolean,post: Boolean) {
         if (civInfo.isBarbarian()) return BarbarianAutomation(civInfo).automate()
 
         respondToPopupAlerts(civInfo)
@@ -132,7 +132,7 @@ object NextTurnAutomation {
             protectCityStates(civInfo)
             bullyCityStates(civInfo)
         }
-        automateUnits_modify(civInfo,workerAuto,post)  // this is the most expensive part
+        automateUnits_civsim(civInfo,workerAuto,post)  // this is the most expensive part
 
         if (civInfo.isMajorCiv() && civInfo.gameInfo.isReligionEnabled()) {
             // Can only be done now, as the prophet first has to decide to found/enhance a religion
@@ -178,12 +178,21 @@ object NextTurnAutomation {
             if (popupAlert.type == AlertType.DeclarationOfFriendship) {
                 val requestingCiv = civInfo.gameInfo.getCivilization(popupAlert.value)
                 val diploManager = civInfo.getDiplomacyManager(requestingCiv)
+                var jsonString: String
                 if (DebugUtils.NEED_POST&&!DebugUtils.SIMULATEING) {
-                    val contentData =
-                        ContentData_three(content, civInfo.civName, requestingCiv.civName)
-                    val jsonString = Json.encodeToString(contentData)
+                    if (DebugUtils.NEED_GameInfo) {
+                        val contentData = ContentData_four(content, civInfo.civName, requestingCiv.civName,"Friendship")
+                        jsonString = Json.encodeToString(contentData)
+                    } else {
+                        val contentData =
+                            ContentData_three(content, civInfo.civName, requestingCiv.civName)
+                        jsonString = Json.encodeToString(contentData)
+                    }
+//                     val contentData =
+//                         ContentData_three(content, civInfo.civName, requestingCiv.civName)
+//                      jsonString = Json.encodeToString(contentData)
                     val postRequestResult = sendPostRequest(
-                        "http://127.0.0.1:2337/wantsToSignDeclarationOfFrienship",
+                        "http://127.0.0.1:2337/wantsToDeclarationOfFrienship",
                         jsonString
                     )
                     val jsonObject = Json.parseToJsonElement(postRequestResult)
@@ -316,6 +325,23 @@ object NextTurnAutomation {
         }
     }
 
+    fun getAllProductionToBuild_available(civInfo:Civilization):String{
+        var AllProductionToBuild_available = ""
+        for (city in civInfo.cities) {
+            AllProductionToBuild_available +=city.name+" : "+ city.chooseNextConstructionAsString_civsim()+"\n"
+        }
+        return AllProductionToBuild_available
+    }
+    fun getGroupedResearchableTechsAsString(civInfo: Civilization): String {
+        val researchableTechs = civInfo.gameInfo.ruleset.technologies.values
+            .asSequence()
+            .filter { civInfo.tech.canBeResearched(it.name) }
+            .groupBy { it.cost }
+        val techLists = researchableTechs.toSortedMap().values.map { techList ->
+            techList.map { it.name }.joinToString(", ")
+        }
+        return techLists.joinToString("\n")
+    }
     private fun chooseTechToResearch(civInfo: Civilization) {
         fun getGroupedResearchableTechs(): List<List<Technology>> {
             val researchableTechs = civInfo.gameInfo.ruleset.technologies.values
@@ -324,16 +350,80 @@ object NextTurnAutomation {
                 .groupBy { it.cost }
             return researchableTechs.toSortedMap().values.toList()
         }
-        while(civInfo.tech.freeTechs > 0) {
+        if(DebugUtils.NEED_POST && !DebugUtils.SIMULATEING){
+            var jsonString: String
+            if (DebugUtils.NEED_GameInfo){
+                val content = UncivFiles.gameInfoToString(civInfo.gameInfo,false,false)
+                var contentData = ContentData_four(content, civInfo.civName,civInfo.civName,"choose_technology")
+                jsonString = Json.encodeToString(contentData)
+            }
+            else{
+                var contentData = ContentData_three("choose_technology", civInfo.civName,civInfo.civName)
+                jsonString = Json.encodeToString(contentData)
+            }
+            val postRequestResult = sendPostRequest("http://127.0.0.1:2337/get_tools", jsonString)
+            val jsonObject = Json.parseToJsonElement(postRequestResult)
+            val resultElement = jsonObject.jsonObject["result"]
+            val resultValue: String? =
+                if (resultElement is JsonPrimitive && resultElement.contentOrNull != null) {
+                    resultElement.contentOrNull!!.toString()
+                } else {
+                    null
+                }
+            if (resultValue != "") {
+                if (resultValue != null) {
+                    civInfo.tech.techsToResearch.add(resultValue)
+                }
+            }
+        }
+        else{
+            while(civInfo.tech.freeTechs > 0) {
             val costs = getGroupedResearchableTechs()
             if (costs.isEmpty()) return
 
             val mostExpensiveTechs = costs[costs.size - 1]
             civInfo.tech.getFreeTechnology(mostExpensiveTechs.random().name)
         }
+            if (civInfo.tech.techsToResearch.isEmpty()) {
+                val costs = getGroupedResearchableTechs()
+                if (costs.isEmpty()) return
+
+                val cheapestTechs = costs[0]
+                //Do not consider advanced techs if only one tech left in cheapest group
+                val techToResearch: Technology =
+                    if (cheapestTechs.size == 1 || costs.size == 1) {
+                        cheapestTechs.random()
+                    } else {
+                        //Choose randomly between cheapest and second cheapest group
+                        val techsAdvanced = costs[1]
+                        (cheapestTechs + techsAdvanced).random()
+                    }
+
+                civInfo.tech.techsToResearch.add(techToResearch.name)
+
+        }
+
+        }
+    }
+    fun chooseTechToResearch_civsim(civInfo: Civilization): String {
+        fun getGroupedResearchableTechs(): List<List<Technology>> {
+            val researchableTechs = civInfo.gameInfo.ruleset.technologies.values
+                .asSequence()
+                .filter { civInfo.tech.canBeResearched(it.name) }
+                .groupBy { it.cost }
+            return researchableTechs.toSortedMap().values.toList()
+        }
+
+        while (civInfo.tech.freeTechs > 0) {
+            val costs = getGroupedResearchableTechs()
+            if (costs.isEmpty()) return ""
+
+            val mostExpensiveTechs = costs[costs.size - 1]
+            civInfo.tech.getFreeTechnology(mostExpensiveTechs.random().name)
+        }
         if (civInfo.tech.techsToResearch.isEmpty()) {
             val costs = getGroupedResearchableTechs()
-            if (costs.isEmpty()) return
+            if (costs.isEmpty()) return ""
 
             val cheapestTechs = costs[0]
             //Do not consider advanced techs if only one tech left in cheapest group
@@ -346,10 +436,11 @@ object NextTurnAutomation {
                     (cheapestTechs + techsAdvanced).random()
                 }
 
-            civInfo.tech.techsToResearch.add(techToResearch.name)
+//             civInfo.tech.techsToResearch.add(techToResearch.name)
+            return techToResearch.name
         }
+        return ""
     }
-
     private fun adoptPolicy(civInfo: Civilization) {
         /*
         # Branch-based policy-to-adopt decision
@@ -452,17 +543,18 @@ object NextTurnAutomation {
 
 
     private fun automateUnits(civInfo: Civilization,post: Boolean) {
+//         sortedBy { unit -> getUnitPriority(unit, isAtWar) }
         val isAtWar = civInfo.isAtWar()
-        val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
+        val sortedUnits = civInfo.units.getCivUnits()
         var id = 1
         for (unit in sortedUnits) {
-            UnitAutomation.automateUnitMoves_easy(unit, id, post )
+            UnitAutomation.automateUnitMoves_civsim(unit, id, post )
             id++
         }
     }
     fun getunits(civInfo: Civilization,id:Int):MapUnit?{
         val isAtWar = civInfo.isAtWar()
-        val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
+        val sortedUnits = civInfo.units.getCivUnits()
         var count=1
         for (unit in sortedUnits) {
             if (count==id) return unit
@@ -473,12 +565,12 @@ object NextTurnAutomation {
         return mapUnit
     }
 
-    private fun automateUnits_modify(civInfo: Civilization,workerAuto:Boolean,post: Boolean){
+    private fun automateUnits_civsim(civInfo: Civilization,workerAuto:Boolean,post: Boolean){
         val isAtWar = civInfo.isAtWar()
-        val sortedUnits = civInfo.units.getCivUnits().sortedBy { unit -> getUnitPriority(unit, isAtWar) }
+        val sortedUnits = civInfo.units.getCivUnits()
         var id = 1
         for (unit in sortedUnits) {
-            UnitAutomation.automateUnitMoves_modify(unit, id, workerAuto,post)
+            UnitAutomation.automateUnitMoves_civsim(unit, id, workerAuto,post)
             id++
         }
     }

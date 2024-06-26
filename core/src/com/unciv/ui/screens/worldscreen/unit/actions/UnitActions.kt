@@ -29,9 +29,9 @@ object UnitActions {
         internalAction.invoke()
         return true
     }
-    fun invokeUnitAction_modify(unit: MapUnit, unitActionType: UnitActionType): Boolean {
+    fun invokeUnitAction_civsim(unit: MapUnit, unitActionType: UnitActionType): Boolean {
         val unitAction = getNormalActions(unit).firstOrNull { it.type == unitActionType }
-            ?: getAdditionalActions_modify(unit).firstOrNull { it.type == unitActionType }
+            ?: getAdditionalActions_civsim(unit).firstOrNull { it.type == unitActionType }
         val internalAction = unitAction?.action ?: return false
         internalAction.invoke()
         return true
@@ -112,7 +112,7 @@ object UnitActions {
 
         return actionList
     }
-    private fun getAdditionalActions_modify(unit: MapUnit): List<UnitAction> {
+    private fun getAdditionalActions_civsim(unit: MapUnit): List<UnitAction> {
         val tile = unit.getTile()
         val actionList = ArrayList<UnitAction>()
 
@@ -131,7 +131,7 @@ object UnitActions {
         if (unit.isCivilian()) addExplorationActions(unit, actionList)
 
 
-        addToggleActionsAction_modify(unit, actionList)
+        addToggleActionsAction_civsim(unit, actionList)
 
         return actionList
     }
@@ -352,7 +352,7 @@ object UnitActions {
             }
         )
     }
-    private fun addToggleActionsAction_modify(unit: MapUnit, actionList: ArrayList<UnitAction>) {
+    private fun addToggleActionsAction_civsim(unit: MapUnit, actionList: ArrayList<UnitAction>) {
         actionList += UnitAction(
             type = if (unit.showAdditionalActions) UnitActionType.HideAdditionalActions
             else UnitActionType.ShowAdditionalActions,

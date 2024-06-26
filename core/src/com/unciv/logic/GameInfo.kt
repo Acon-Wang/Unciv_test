@@ -448,7 +448,7 @@ class GameInfo : IsPartOfGameInfoSerialization, HasGameInfoSerializationVersion 
             humanid=playerIndex
             player.playerType=PlayerType.AI
             flag=1
-            TurnManager(player).endTurn_modify()
+            TurnManager(player).endTurn_civsim()
             setNextPlayer()
         }
 
@@ -466,16 +466,16 @@ class GameInfo : IsPartOfGameInfoSerialization, HasGameInfoSerializationVersion 
                 flag++
             }
             // Starting preparations
-            TurnManager(player).startTurn_modify()
+            TurnManager(player).startTurn_civsim()
             // Automation done here
-            TurnManager(player).automateTurn_modify(Diplomacy_flag, workerAuto, post)
+            TurnManager(player).automateTurn_civsim(Diplomacy_flag, workerAuto, post)
             // Do we need to break if player won?
             if (simulateUntilWin && player.victoryManager.hasWon()) {
                 simulateUntilWin = false
                 break
             }
             // Clean up
-            TurnManager(player).endTurn_modify()
+            TurnManager(player).endTurn_civsim()
             // To the next player
             setNextPlayer()
         }
@@ -491,7 +491,7 @@ class GameInfo : IsPartOfGameInfoSerialization, HasGameInfoSerializationVersion 
         currentPlayerCiv = getCivilization(currentPlayer)
 
         // Starting his turn
-        TurnManager(player).startTurn_modify()
+        TurnManager(player).startTurn_civsim()
 
         // No popups for spectators
         if (currentPlayerCiv.isSpectator())
